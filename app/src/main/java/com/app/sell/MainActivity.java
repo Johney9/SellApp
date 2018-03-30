@@ -1,5 +1,6 @@
 package com.app.sell;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -62,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
                                     int position, long id) {
                 Toast.makeText(MainActivity.this, "" + position + "," + id,
                         Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(v.getContext(), OfferActivity.class);
+                startActivity(intent);
             }
         });
     }
