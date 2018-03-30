@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SellApp</string>
+    <string name="title_home">Home</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_photo">Post an Offer</string>
+    <string name="title_offers">Offers</string>
+    <string name="title_account">Account</string>
+</resources>
