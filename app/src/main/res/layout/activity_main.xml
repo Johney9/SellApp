@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -7,16 +7,62 @@
     android:layout_height="match_parent"
     tools:context="com.app.sell.MainActivity">
 
-    <TextView
-        android:id="@+id/message"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:text="@string/title_home"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <SearchView
+            android:id="@+id/searchView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="-16dp"
+            android:paddingStart="-16dp"
+            android:iconifiedByDefault="false"
+            android:queryHint="Search"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="4dp" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_view_comfy_black_24dp"
+         />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_location_on_black_24dp"
+            />
+
+    </android.support.v7.widget.Toolbar>
+
+    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/gridview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:verticalSpacing="0dp"
+        android:horizontalSpacing="0dp"
+        android:stretchMode="columnWidth"
+        android:gravity="center"
+        android:numColumns="3"
+        />
+    </LinearLayout>
+
+    <!--<TextView-->
+        <!--android:id="@+id/message"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_marginLeft="@dimen/activity_horizontal_margin"-->
+        <!--android:layout_marginTop="@dimen/activity_vertical_margin"-->
+        <!--android:text="@string/title_home"-->
+        <!--app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--app:layout_constraintTop_toTopOf="parent" />-->
 
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"

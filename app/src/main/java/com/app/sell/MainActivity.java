@@ -5,8 +5,13 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.app.sell.adapter.HomeImageAdapter;
 import com.app.sell.helper.BottomNavigationViewHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,6 +53,17 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         BottomNavigationViewHelper.disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        GridView gridview = (GridView)findViewById(R.id.gridview);
+        gridview.setAdapter(new HomeImageAdapter(this));
+
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+                Toast.makeText(MainActivity.this, "" + position + "," + id,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }
