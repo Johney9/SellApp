@@ -11,12 +11,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <!--<ImageView-->
-            <!--android:id="@+id/image1"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:src="@drawable/sample_0" />-->
-
         <com.klinker.android.badged_imageview.BadgedImageView
             android:id="@+id/badged_iv"
             android:layout_width="match_parent"
@@ -102,13 +96,15 @@
                 android:id="@+id/allow"
                 android:layout_width="0.0dip" android:layout_height="fill_parent"
                 android:text="Ask"
-                android:layout_weight="1.0" />
+                android:layout_weight="1.0"
+                android:onClick="openAskActivity"/>
 
             <Button
                 android:id="@+id/deny"
                 android:layout_width="0.0dip" android:layout_height="fill_parent"
                 android:text="Make an Offer"
-                android:layout_weight="1.0" />
+                android:layout_weight="1.0"
+                android:onClick="openMakeOfferActivity"/>
 
         </LinearLayout>
 
