@@ -38,9 +38,7 @@ public class MainActivity extends AppCompatActivity {
                     transaction.replace(R.id.content, new HomeFragment()).commit();
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_offers);
-                    Intent notificationsIntent = new Intent(MainActivity.this, NotificationsActivity.class);
-                    startActivity(notificationsIntent);
+                    openNotificationsActivity();
                     return true;
                 case R.id.navigation_photo:
                     openPostOfferActivity(findViewById(android.R.id.content));
@@ -49,9 +47,7 @@ public class MainActivity extends AppCompatActivity {
                     transaction.replace(R.id.content, new MyOffersFragment()).commit();
                     return true;
                 case R.id.navigation_account:
-                    mTextMessage.setText(R.string.title_account);
-                    Intent accountIntent = new Intent(MainActivity.this, AccountActivity.class);
-                    startActivity(accountIntent);
+                    openAccountActivity();
                     return true;
             }
             return false;
@@ -141,5 +137,15 @@ public class MainActivity extends AppCompatActivity {
     public void openPostOfferActivity(View view) {
         Intent intent = new Intent(view.getContext(), PostOfferActivity.class);
         startActivity(intent);
+    }
+
+    public void openNotificationsActivity() {
+        Intent notificationsIntent = new Intent(MainActivity.this, NotificationsActivity.class);
+        startActivity(notificationsIntent);
+    }
+
+    public void openAccountActivity() {
+        Intent accountIntent = new Intent(MainActivity.this, AccountActivity.class);
+        startActivity(accountIntent);
     }
 }

@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature android:name="android.hardware.camera" />
@@ -51,7 +50,6 @@
         </provider>
 
         <activity android:name=".SelectCategoryActivity" />
-        <activity android:name=".MakeOfferActivity" />
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile"
@@ -80,6 +78,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.app.sell.MainActivity" />
+        </activity>
+        <activity
+            android:name=".EditAccountActivity"
+            android:label="@string/title_activity_edit_account"
+            android:parentActivityName=".AccountActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.app.sell.AccountActivity" />
         </activity>
     </application>
 

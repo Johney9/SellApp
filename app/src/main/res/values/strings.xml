@@ -38,9 +38,10 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="user_name">"User name"</string>
+    <string name="user_name">"Milorad Vojnovic"</string>
     <string name="user_rating">"Rating: "</string>
     <string name="offers">"Offers:"</string>
     <string name="title_activity_notifications">Notifications</string>
     <string name="title_activity_account">Account</string>
+    <string name="title_activity_edit_account">Edit Account Details</string>
 </resources>
