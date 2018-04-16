@@ -24,4 +24,9 @@ public class AccountActivity extends AppCompatActivity {
         Intent intent = new Intent(view.getContext(), EditAccountActivity.class);
         startActivity(intent);
     }
+
+    public void openLoginActivity(View view) {
+        Intent intent = new Intent(view.getContext(), LoginActivity.class);
+        startActivity(intent);
+    }
 }
