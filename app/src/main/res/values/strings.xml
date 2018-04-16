@@ -9,4 +9,17 @@
     <string name="still_available">Is this still available?</string>
     <string name="like_to_buy">I\'d like to buy this</string>
     <string name="meet_today">Can you meet today?</string>
+    <string name="title_activity_my_offers">MyOffersActivity</string>
+    <string name="tab_text_1">SELLING</string>
+    <string name="tab_text_2">BUYING</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="button_previous">Previous</string>
+    <string name="button_next">Next</string>
+    <string name="chk_frm_on_price">Firm on price?</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_post_offer">PostOfferActivity</string>
+    <string name="tab_text_3">Tab 3</string>
 </resources>
