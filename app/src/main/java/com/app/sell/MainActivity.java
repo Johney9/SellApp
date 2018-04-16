@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -15,13 +17,12 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.app.sell.adapter.HomeImageAdapter;
 import com.app.sell.helper.BottomNavigationViewHelper;
 
 public class MainActivity extends AppCompatActivity {
-
-    private TextView mTextMessage;
 
     private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
 
@@ -30,9 +31,11 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
+                    transaction.replace(R.id.content, new HomeFragment()).commit();
                     return true;
                 case R.id.navigation_notifications:
                     mTextMessage.setText(R.string.title_offers);
@@ -40,12 +43,10 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(notificationsIntent);
                     return true;
                 case R.id.navigation_photo:
-                    mTextMessage.setText(R.string.title_photo);
+                    openPostOfferActivity(findViewById(android.R.id.content));
                     return true;
                 case R.id.navigation_offers:
-                    mTextMessage.setText(R.string.title_notifications);
-                    Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivity(loginIntent);
+                    transaction.replace(R.id.content, new MyOffersFragment()).commit();
                     return true;
                 case R.id.navigation_account:
                     mTextMessage.setText(R.string.title_account);
@@ -62,23 +63,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         BottomNavigationViewHelper.disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        GridView gridview = (GridView) findViewById(R.id.gridview);
-        gridview.setAdapter(new HomeImageAdapter(this));
-
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-                Toast.makeText(MainActivity.this, "" + position + "," + id,
-                        Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(v.getContext(), OfferActivity.class);
-                startActivity(intent);
-            }
-        });
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.content, new HomeFragment()).commit();
     }
 
     public void openSortDialog(View view) {
@@ -144,6 +135,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void openLocationActivity(View view) {
         Intent intent = new Intent(view.getContext(), LocationActivity.class);
+        startActivity(intent);
+    }
+
+    public void openPostOfferActivity(View view) {
+        Intent intent = new Intent(view.getContext(), PostOfferActivity.class);
         startActivity(intent);
     }
 }

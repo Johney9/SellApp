@@ -8,20 +8,20 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-public class AccountActivity extends AppCompatActivity {
+public class EditAccountActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_account);
+        setContentView(R.layout.activity_edit_account);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    public void openEditAccountActivity(View view) {
-        Intent intent = new Intent(view.getContext(), EditAccountActivity.class);
+    public void openLocationActivity(View view) {
+        Intent intent = new Intent(view.getContext(), LocationActivity.class);
         startActivity(intent);
     }
 }
