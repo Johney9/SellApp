@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
 
 public class OfferActivity extends AppCompatActivity {
 
@@ -20,6 +21,13 @@ public class OfferActivity extends AppCompatActivity {
 
     public void openMakeOfferActivity(View view) {
         Intent intent = new Intent(view.getContext(), MakeOfferActivity.class);
+        startActivity(intent);
+    }
+
+    public void openProfileActivity(View view) {
+        Intent intent = new Intent(view.getContext(), ProfileActivity.class);
+        TextView textView = view.findViewById(R.id.user_name);
+        intent.putExtra("username", textView.getText());
         startActivity(intent);
     }
 }

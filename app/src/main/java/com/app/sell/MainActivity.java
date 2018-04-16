@@ -35,16 +35,22 @@ public class MainActivity extends AppCompatActivity {
                     mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
+                    mTextMessage.setText(R.string.title_offers);
+                    Intent notificationsIntent = new Intent(MainActivity.this, NotificationsActivity.class);
+                    startActivity(notificationsIntent);
                     return true;
                 case R.id.navigation_photo:
                     mTextMessage.setText(R.string.title_photo);
                     return true;
                 case R.id.navigation_offers:
-                    mTextMessage.setText(R.string.title_offers);
+                    mTextMessage.setText(R.string.title_notifications);
+                    Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(loginIntent);
                     return true;
                 case R.id.navigation_account:
                     mTextMessage.setText(R.string.title_account);
+                    Intent accountIntent = new Intent(MainActivity.this, AccountActivity.class);
+                    startActivity(accountIntent);
                     return true;
             }
             return false;
