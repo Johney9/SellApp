@@ -88,6 +88,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.app.sell.AccountActivity" />
         </activity>
+        <activity
+            android:name=".ChangePictureActivity"
+            android:label="@string/title_activity_change_picture"
+            android:parentActivityName=".AccountActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.app.sell.AccountActivity" />
+        </activity>
     </application>
 
 </manifest>
