@@ -9,7 +9,6 @@ import android.widget.GridView;
 import android.widget.Toast;
 
 import com.app.sell.adapter.CategoryImageAdapter;
-import com.app.sell.adapter.HomeImageAdapter;
 
 public class CategoriesActivity extends AppCompatActivity {
 

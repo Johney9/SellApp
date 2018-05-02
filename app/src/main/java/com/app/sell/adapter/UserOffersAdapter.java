@@ -2,8 +2,12 @@ package com.app.sell.adapter;
 
 import android.content.Context;
 
-public class UserOffersAdapter extends HomeImageAdapter {
-    public UserOffersAdapter(Context context) {
-        super(context);
+import com.app.sell.model.Offer;
+
+import java.util.List;
+
+public class UserOffersAdapter extends OfferAdapter {
+    public UserOffersAdapter(Context context, List<Offer> offers) {
+        super(context, offers);
     }
 }
