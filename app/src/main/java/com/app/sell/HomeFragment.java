@@ -12,7 +12,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.app.sell.adapter.OfferAdapter;
+import com.app.sell.adapter.OffersAdapter;
 import com.app.sell.model.Offer;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -102,7 +102,7 @@ public class HomeFragment extends Fragment {
                     offers.add(offer);
                 }
 
-                gridview.setAdapter(new OfferAdapter(getContext(), offers));
+                gridview.setAdapter(new OffersAdapter(getContext(), offers));
 
             }
 
@@ -115,9 +115,9 @@ public class HomeFragment extends Fragment {
         gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Toast.makeText(getContext().getApplicationContext(), "" + position + "," + id,
-                        Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(v.getContext(), OfferActivity.class);
+                Offer offer = (Offer)gridview.getAdapter().getItem(position);
+                Intent intent = new Intent(v.getContext(), OfferActivity_.class);
+                intent.putExtra("offerId",offer.getId());
                 startActivity(intent);
             }
         });

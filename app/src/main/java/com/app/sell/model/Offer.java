@@ -8,17 +8,19 @@ public class Offer {
     private String description;
     private String location;
     private String image;
+    private String offererId;
 
     public Offer() {
     }
 
-    public Offer(String id, String title, Double price, String description, String location, String image) {
+    public Offer(String id, String title, Double price, String description, String location, String image, String offererId) {
         this.id = id;
         this.title = title;
         this.price = price;
         this.description = description;
         this.location = location;
         this.image = image;
+        this.offererId = offererId;
     }
 
     public String getId() {
@@ -67,5 +69,13 @@ public class Offer {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getOffererId() {
+        return offererId;
+    }
+
+    public void setOffererId(String offererId) {
+        this.offererId = offererId;
     }
 }
