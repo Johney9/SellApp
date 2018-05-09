@@ -10,6 +10,7 @@
     tools:showIn="@layout/activity_change_picture">
 
     <com.app.sell.view.SquareImageView
+        android:id="@+id/change_picture_imageview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/mv"
