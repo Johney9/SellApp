@@ -4,11 +4,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,9 +20,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.sell.helper.BottomNavigationViewHelper;
+import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.ErrorCodes;
+import com.firebase.ui.auth.IdpResponse;
+import com.firebase.ui.auth.ResultCodes;
+import com.firebase.ui.auth.provider.IdpProvider;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @EActivity
 public class MainActivity extends AppCompatActivity {
@@ -40,7 +53,8 @@ public class MainActivity extends AppCompatActivity {
                     transaction.replace(R.id.content, new HomeFragment()).commit();
                     return true;
                 case R.id.navigation_notifications:
-                    openNotificationsActivity();
+                    //openNotificationsActivity();
+                    NotificationsActivity_.intent(getApplicationContext()).start();
                     return true;
                 case R.id.navigation_photo:
                     openPostOfferActivity(findViewById(android.R.id.content));
@@ -49,7 +63,8 @@ public class MainActivity extends AppCompatActivity {
                     transaction.replace(R.id.content, new MyOffersFragment()).commit();
                     return true;
                 case R.id.navigation_account:
-                    openAccountActivity();
+                    //openAccountActivity();
+                    AccountActivity_.intent(getApplicationContext()).start();
                     return true;
             }
             return false;
@@ -61,7 +76,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        startHomeScreen();
+    }
 
+    private void startHomeScreen() {
         BottomNavigationViewHelper.disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
