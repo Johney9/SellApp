@@ -7,12 +7,14 @@ import android.widget.ListView;
 
 import com.app.sell.adapter.NotificationsAdapter;
 
+import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.EActivity;
+
+@EActivity(R.layout.activity_notifications)
 public class NotificationsActivity extends AppCompatActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notifications);
+    @AfterViews
+    void init() {
         Toolbar toolbar = findViewById(R.id.notifications_toolbar);
         setSupportActionBar(toolbar);
 
@@ -21,5 +23,4 @@ public class NotificationsActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
-
 }
