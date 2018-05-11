@@ -9,17 +9,32 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.app.sell.adapter.OffersAdapter;
 import com.app.sell.helper.BottomNavigationViewHelper;
+import com.app.sell.model.Offer;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EActivity
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
     private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
     @ViewById(R.id.navigation)
     BottomNavigationView navigation;
+    DatabaseReference databaseOffers;
+    private List<Offer> offers;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -68,6 +85,50 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.content, new HomeFragment()).commit();
+        databaseOffers = FirebaseDatabase.getInstance().getReference("offers");
+        offers = new ArrayList<>();
+    }
+
+    public void search(View view) {
+        final GridView gridview = (GridView) findViewById(R.id.gridview);
+        final SearchView searchView = (SearchView) findViewById(R.id.search_view);
+
+        CharSequence searchQuery = searchView.getQuery();
+        Query searchedOffers = databaseOffers.orderByChild("title").startAt(searchQuery.toString()).endAt(searchQuery.toString() + "\uf8ff");
+        searchedOffers.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                offers.clear();
+                for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
+                    Offer offer = offerSnapshot.getValue(Offer.class);
+                    offers.add(offer);
+                }
+
+                gridview.setAdapter(new OffersAdapter(getApplicationContext(), offers));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(newText.length() == 0) {
+                    search(searchView);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                search(searchView);
+                return true;
+            }
+
+        });
     }
 
     public void openSortDialog(View view) {
@@ -107,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                                 String priceFrom = priceFromText.getText().toString();
                                 String priceTo = priceToText.getText().toString();
                                 final EditText price = findViewById(R.id.price);
-                                price.setText("$"+priceFrom+" - $"+priceTo);
+                                price.setText("$" + priceFrom + " - $" + priceTo);
                                 Toast.makeText(getApplicationContext(),
                                         "Price from = " + priceFrom + "\nPrice to = " + priceTo, Toast.LENGTH_SHORT).show();
                             }

@@ -97,8 +97,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 offers.clear();
-                for (DataSnapshot offerSnapshop: dataSnapshot.getChildren()) {
-                    Offer offer = offerSnapshop.getValue(Offer.class);
+                for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
+                    Offer offer = offerSnapshot.getValue(Offer.class);
                     offers.add(offer);
                 }
 
