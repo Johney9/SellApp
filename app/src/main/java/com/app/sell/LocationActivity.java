@@ -38,7 +38,7 @@ public class LocationActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if(extras != null && extras.getInt("requestCode") == PostOfferFinishFragment.REQ_SELL_LOCATION) {
-                mQuestion.setText("Where are you selling?");
+                mQuestion.setText(R.string.selling_question);
             }
         }
     }
