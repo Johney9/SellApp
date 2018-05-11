@@ -73,7 +73,7 @@ public class PostOfferFinishFragment extends Fragment {
         mSelectedLocation = v.findViewById(R.id.selected_location);
         mSelectedLocation.setOnClickListener(new View.OnClickListener(){
             public void onClick(View v){
-                Intent intent = new Intent(getContext(), LocationActivity.class);
+                Intent intent = new Intent(getContext(), LocationActivity_.class);
                 intent.putExtra("requestCode", REQ_SELL_LOCATION);
                 startActivityForResult(intent, REQ_SELL_LOCATION);
             }
