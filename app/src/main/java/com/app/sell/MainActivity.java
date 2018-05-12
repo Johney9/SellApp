@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,10 +33,16 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @EActivity
 public class MainActivity extends AppCompatActivity {
+
+    private enum Sort {
+        NEWEST_FIRST, CLOSEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
+    }
 
     private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
     @ViewById(R.id.navigation)
@@ -47,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private String searchTermForQuery;
     private double priceFromForQuery;
     private double priceToForQuery;
+    private Sort currentSorting;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -95,13 +103,16 @@ public class MainActivity extends AppCompatActivity {
         searchTermForQuery = "";
         priceFromForQuery = 0;
         priceToForQuery = Double.MAX_VALUE;
+        currentSorting = Sort.NEWEST_FIRST;
     }
 
-    public void search() {
+    public void searchSort() {
         final GridView gridview = (GridView) findViewById(R.id.gridview);
         Query searchedOffers = databaseOffers;
-        if(priceFromForQuery != 0 || priceToForQuery != Double.MAX_VALUE) {
-         searchedOffers = searchedOffers.orderByChild("price").startAt(priceFromForQuery).endAt(priceToForQuery);
+        if(currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.PRICE_LOW_HIGH) {
+            searchedOffers = searchedOffers.orderByChild("price");
+        } else if (currentSorting == Sort.NEWEST_FIRST) {
+            searchedOffers = searchedOffers.orderByChild("timestamp");
         }
         searchedOffers.addValueEventListener(new ValueEventListener() {
             @Override
@@ -109,9 +120,14 @@ public class MainActivity extends AppCompatActivity {
                 offers.clear();
                 for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
                     Offer offer = offerSnapshot.getValue(Offer.class);
-                    if(searchTermForQuery.length() == 0 || searchTermForQuery.length() != 0 && offer.getTitle().contains(searchTermForQuery)) {
+//                    if(searchTermForQuery.length() == 0 || searchTermForQuery.length() != 0 && offer.getTitle().contains(searchTermForQuery)) {
+                    if(checkSearchTerm(offer) && checkPrice(offer)) {
                         offers.add(offer);
                     }
+                }
+
+                if(currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.NEWEST_FIRST) {
+                    Collections.reverse(offers);
                 }
 
                 gridview.setAdapter(new OffersAdapter(getApplicationContext(), offers));
@@ -123,31 +139,34 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void search(View view) {
+    private boolean checkSearchTerm(Offer offer){
+        return searchTermForQuery.length() == 0 || offer.getTitle().contains(searchTermForQuery);
+    }
+
+    private boolean checkPrice(Offer offer) {
+        return offer.getPrice() >= priceFromForQuery && offer.getPrice() <= priceToForQuery;
+    }
+
+    public void searchSort(View view) {
         final SearchView searchView = (SearchView) findViewById(R.id.search_view);
 
         searchTermForQuery = searchView.getQuery().toString();
-        search();
-    }
-
-    private Query getSearchQuery() {
-        final SearchView searchView = (SearchView) findViewById(R.id.search_view);
-
-        CharSequence searchQuery = searchView.getQuery();
-        return databaseOffers.orderByChild("title").startAt(searchQuery.toString()).endAt(searchQuery.toString() + "\uf8ff");
+        searchSort();
     }
 
     public void openSortDialog(View view) {
         AlertDialog.Builder sortDialog = new AlertDialog.Builder(this);
         //alt_bld.setIcon(R.drawable.icon);
         sortDialog.setTitle("Select a sorting");
-        sortDialog.setSingleChoiceItems(sort, -1, new DialogInterface
+        sortDialog.setSingleChoiceItems(sort, currentSorting.ordinal(), new DialogInterface
                 .OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 Toast.makeText(getApplicationContext(),
                         "Sort = " + sort[item], Toast.LENGTH_SHORT).show();
                 TextView sortText = (TextView) findViewById(R.id.sort);
                 sortText.setText(sort[item]);
+                currentSorting = Sort.values()[item];
+                searchSort();
                 dialog.dismiss();
 
             }
@@ -216,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 price.setText(priceText);
 
-                                search();
+                                searchSort();
                             }
                         })
                 .setNegativeButton("Cancel",
@@ -258,10 +277,6 @@ public class MainActivity extends AppCompatActivity {
     public void openAccountActivity() {
         Intent accountIntent = new Intent(MainActivity.this, AccountActivity.class);
         startActivity(accountIntent);
-    }
-
-    public String getSearchTermForQuery() {
-        return searchTermForQuery;
     }
 
     public void setSearchTermForQuery(String searchTermForQuery) {

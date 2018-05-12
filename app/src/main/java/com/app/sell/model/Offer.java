@@ -9,11 +9,12 @@ public class Offer {
     private String location;
     private String image;
     private String offererId;
+    private Long timestamp;
 
     public Offer() {
     }
 
-    public Offer(String id, String title, Double price, String description, String location, String image, String offererId) {
+    public Offer(String id, String title, Double price, String description, String location, String image, String offererId, Long timestamp) {
         this.id = id;
         this.title = title;
         this.price = price;
@@ -21,6 +22,7 @@ public class Offer {
         this.location = location;
         this.image = image;
         this.offererId = offererId;
+        this.timestamp = timestamp;
     }
 
     public String getId() {
@@ -77,5 +79,13 @@ public class Offer {
 
     public void setOffererId(String offererId) {
         this.offererId = offererId;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 }

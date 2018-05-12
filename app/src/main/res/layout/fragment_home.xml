@@ -24,7 +24,7 @@
                 android:queryHint="Search"
                 tools:layout_editor_absoluteX="16dp"
                 tools:layout_editor_absoluteY="4dp"
-                android:onClick="search"/>
+                android:onClick="searchSort"/>
 
             <ImageButton
                 android:layout_width="wrap_content"

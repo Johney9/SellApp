@@ -46,20 +46,24 @@ public class OffersAdapter extends BaseAdapter {
         View v = view;
         ImageView picture;
         TextView title;
+        TextView price;
 
         if (v == null) {
             v = mInflater.inflate(R.layout.grid_item, viewGroup, false);
             v.setTag(R.id.picture, v.findViewById(R.id.picture));
             v.setTag(R.id.text, v.findViewById(R.id.text));
+            v.setTag(R.id.price, v.findViewById(R.id.price));
         }
 
         picture = (ImageView) v.getTag(R.id.picture);
         title = (TextView) v.getTag(R.id.text);
+        price = (TextView) v.getTag(R.id.price);
 
         Offer offer = getItem(i);
 
         Glide.with(context).load(offer.getImage()).into(picture);
         title.setText(offer.getTitle());
+        price.setText("$"+offer.getPrice().toString());
 
         v.setPadding(8, 8, 8, 8);
 
