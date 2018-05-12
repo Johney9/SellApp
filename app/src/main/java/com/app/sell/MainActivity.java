@@ -9,13 +9,11 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
     BottomNavigationView navigation;
     DatabaseReference databaseOffers;
     private List<Offer> offers;
+    private String priceFromEdit;
+    private String priceToEdit;
+    private String searchTermForQuery;
+    private double priceFromForQuery;
+    private double priceToForQuery;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -87,21 +90,28 @@ public class MainActivity extends AppCompatActivity {
         transaction.replace(R.id.content, new HomeFragment()).commit();
         databaseOffers = FirebaseDatabase.getInstance().getReference("offers");
         offers = new ArrayList<>();
+        priceFromEdit = "";
+        priceToEdit = "";
+        searchTermForQuery = "";
+        priceFromForQuery = 0;
+        priceToForQuery = Double.MAX_VALUE;
     }
 
-    public void search(View view) {
+    public void search() {
         final GridView gridview = (GridView) findViewById(R.id.gridview);
-        final SearchView searchView = (SearchView) findViewById(R.id.search_view);
-
-        CharSequence searchQuery = searchView.getQuery();
-        Query searchedOffers = databaseOffers.orderByChild("title").startAt(searchQuery.toString()).endAt(searchQuery.toString() + "\uf8ff");
+        Query searchedOffers = databaseOffers;
+        if(priceFromForQuery != 0 || priceToForQuery != Double.MAX_VALUE) {
+         searchedOffers = searchedOffers.orderByChild("price").startAt(priceFromForQuery).endAt(priceToForQuery);
+        }
         searchedOffers.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 offers.clear();
                 for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
                     Offer offer = offerSnapshot.getValue(Offer.class);
-                    offers.add(offer);
+                    if(searchTermForQuery.length() == 0 || searchTermForQuery.length() != 0 && offer.getTitle().contains(searchTermForQuery)) {
+                        offers.add(offer);
+                    }
                 }
 
                 gridview.setAdapter(new OffersAdapter(getApplicationContext(), offers));
@@ -111,24 +121,20 @@ public class MainActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
             }
         });
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+    }
 
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                if(newText.length() == 0) {
-                    search(searchView);
-                    return true;
-                }
-                return false;
-            }
+    public void search(View view) {
+        final SearchView searchView = (SearchView) findViewById(R.id.search_view);
 
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                search(searchView);
-                return true;
-            }
+        searchTermForQuery = searchView.getQuery().toString();
+        search();
+    }
 
-        });
+    private Query getSearchQuery() {
+        final SearchView searchView = (SearchView) findViewById(R.id.search_view);
+
+        CharSequence searchQuery = searchView.getQuery();
+        return databaseOffers.orderByChild("title").startAt(searchQuery.toString()).endAt(searchQuery.toString() + "\uf8ff");
     }
 
     public void openSortDialog(View view) {
@@ -157,6 +163,8 @@ public class MainActivity extends AppCompatActivity {
                 .findViewById(R.id.priceFrom);
         final EditText priceToText = (EditText) priceView
                 .findViewById(R.id.priceTo);
+        priceFromText.setText(priceFromEdit);
+        priceToText.setText(priceToEdit);
         AlertDialog.Builder priceDialogBuilder = new AlertDialog.Builder(this);
         priceDialogBuilder.setTitle("Select a pricing range");
         priceDialogBuilder.setView(priceView);
@@ -165,17 +173,57 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("OK",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                String priceFrom = priceFromText.getText().toString();
-                                String priceTo = priceToText.getText().toString();
+                                String priceFrom = priceFromText.getText().toString().trim();
+                                String priceTo = priceToText.getText().toString().trim();
+                                boolean minPriceSet = true;
+                                boolean maxPriceSet = true;
+                                if(priceFrom.length() == 0){
+                                    priceFrom = "0";
+                                    minPriceSet = false;
+                                }
+                                if(priceTo.length() == 0){
+                                    priceTo = String.valueOf(Double.MAX_VALUE);
+                                    maxPriceSet = false;
+                                }
+                                try {
+                                    priceFromForQuery = Double.parseDouble(priceFrom);
+                                    priceToForQuery = Double.parseDouble(priceTo);
+                                } catch (NumberFormatException ex) {
+                                    Toast.makeText(getApplicationContext(),
+                                            "Please enter numbers.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
                                 final EditText price = findViewById(R.id.price);
-                                price.setText("$" + priceFrom + " - $" + priceTo);
-                                Toast.makeText(getApplicationContext(),
-                                        "Price from = " + priceFrom + "\nPrice to = " + priceTo, Toast.LENGTH_SHORT).show();
+                                String priceText = "Price: Any";
+                                if(minPriceSet && maxPriceSet){
+                                    priceText = "$" +  priceFrom + " - " + "$" + priceTo;
+//                                    offersByPrice = offersByPrice.orderByChild("price").startAt(fromPrice).endAt(toPrice);
+                                    priceFromEdit = priceFrom;
+                                    priceToEdit = priceTo;
+                                } else if (minPriceSet) {
+                                    priceText = "From $" + priceFrom;
+                                    priceFromEdit = priceFrom;
+                                    priceToEdit = "";
+//                                    offersByPrice = offersByPrice.orderByChild("price").startAt(fromPrice);
+                                } else if(maxPriceSet) {
+                                    priceText = "To $" + priceTo;
+                                    priceFromEdit = "";
+                                    priceToEdit = priceTo;
+//                                    offersByPrice = offersByPrice.orderByChild("price").endAt(toPrice);
+                                } else{
+                                    priceFromEdit = "";
+                                    priceToEdit = "";
+                                }
+                                price.setText(priceText);
+
+                                search();
                             }
                         })
                 .setNegativeButton("Cancel",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
+                                priceFromEdit = "";
+                                priceToEdit = "";
                                 dialog.cancel();
                             }
                         });
@@ -210,5 +258,13 @@ public class MainActivity extends AppCompatActivity {
     public void openAccountActivity() {
         Intent accountIntent = new Intent(MainActivity.this, AccountActivity.class);
         startActivity(accountIntent);
+    }
+
+    public String getSearchTermForQuery() {
+        return searchTermForQuery;
+    }
+
+    public void setSearchTermForQuery(String searchTermForQuery) {
+        this.searchTermForQuery = searchTermForQuery;
     }
 }

@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.app.sell.adapter.OffersAdapter;
@@ -33,7 +34,6 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
-    private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -90,6 +90,7 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         final GridView gridview = (GridView) v.findViewById(R.id.gridview);
+        final SearchView searchView = (SearchView) v.findViewById(R.id.search_view);
 
         databaseOffers = FirebaseDatabase.getInstance().getReference("offers");
 
@@ -120,6 +121,27 @@ public class HomeFragment extends Fragment {
                 intent.putExtra("offerId",offer.getId());
                 startActivity(intent);
             }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(newText.length() == 0) {
+                    ((MainActivity)getActivity()).setSearchTermForQuery("");
+                    ((MainActivity)getActivity()).search();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                ((MainActivity)getActivity()).setSearchTermForQuery(query);
+                ((MainActivity)getActivity()).search();
+                return true;
+            }
+
         });
         return v;
     }
