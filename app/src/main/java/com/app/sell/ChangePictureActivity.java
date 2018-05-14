@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import lombok.NonNull;
+
 @EActivity(R.layout.activity_change_picture)
 public class ChangePictureActivity extends AppCompatActivity {
 
@@ -126,7 +128,7 @@ public class ChangePictureActivity extends AppCompatActivity {
         }
     }
 
-    private void changeProfilePhoto(Uri uri, ImageView imageView) {
+    private void changeProfilePhoto(@NonNull Uri uri, ImageView imageView) {
         User currentUser = userDao.getCurrentUser();
         currentUser.setImage(uri.toString());
         userDao.writeCurrentUser();
