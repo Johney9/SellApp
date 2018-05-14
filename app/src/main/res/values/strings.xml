@@ -51,4 +51,7 @@
     <string name="sign_out_failed">Sign out has failed. Please try again later.</string>
     <string name="sign_out">Sign out</string>
     <string name="default_location">Novi Sad, Serbia</string>
+    <string name="selling_question">Where are you selling?</string>
+    <string name="take_a_new_photo">Take a new photo</string>
+    <string name="select_an_existing_photo">Select an existing photo</string>
 </resources>

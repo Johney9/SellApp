@@ -17,13 +17,15 @@
         android:scaleType="centerCrop"/>
 
     <Button
+        android:id="@+id/change_picture_take_new_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Take a new photo"/>
+        android:text="@string/take_a_new_photo"/>
 
     <Button
+        android:id="@+id/change_picture_from_gallery_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select an existing photo"/>
+        android:text="@string/select_an_existing_photo"/>
 
 </LinearLayout>

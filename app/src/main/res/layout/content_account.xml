@@ -9,9 +9,11 @@
     tools:showIn="@layout/activity_account">
 
     <GridLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:columnCount="2">
+        android:layout_gravity="center_horizontal"
+        android:columnCount="2"
+        android:layout_margin="16dp">
 
         <TextView
             android:layout_width="wrap_content"
@@ -32,16 +34,6 @@
             android:layout_height="wrap_content"
             android:text="Location: "
             android:layout_column="0"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Login: "
-            android:layout_column="0"
-            android:layout_rowSpan="2"
-            android:layout_rowWeight="2"
-            android:gravity="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
         <TextView
@@ -67,19 +59,15 @@
             android:text="@string/default_location"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:onClick="openLoginActivity"
-            android:src="@drawable/ic_account_circle_black_24dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
-
         <Button
             android:id="@+id/sign_out"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_column="0"
+            android:layout_columnSpan="2"
+            android:layout_margin="16dp"
+            android:layout_gravity="center_horizontal"
             android:text="@string/sign_out" />
 
     </GridLayout>

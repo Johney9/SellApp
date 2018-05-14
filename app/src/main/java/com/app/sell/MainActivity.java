@@ -4,14 +4,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,27 +17,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.sell.helper.BottomNavigationViewHelper;
-import com.firebase.ui.auth.AuthUI;
-import com.firebase.ui.auth.ErrorCodes;
-import com.firebase.ui.auth.IdpResponse;
-import com.firebase.ui.auth.ResultCodes;
-import com.firebase.ui.auth.provider.IdpProvider;
-import com.google.firebase.auth.FirebaseAuth;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 @EActivity
 public class MainActivity extends AppCompatActivity {
 
-    private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
     @ViewById(R.id.navigation)
     BottomNavigationView navigation;
-
+    private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -125,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                                 String priceFrom = priceFromText.getText().toString();
                                 String priceTo = priceToText.getText().toString();
                                 final EditText price = findViewById(R.id.price);
-                                price.setText("$"+priceFrom+" - $"+priceTo);
+                                price.setText("$" + priceFrom + " - $" + priceTo);
                                 Toast.makeText(getApplicationContext(),
                                         "Price from = " + priceFrom + "\nPrice to = " + priceTo, Toast.LENGTH_SHORT).show();
                             }
@@ -150,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openLocationActivity(View view) {
-        Intent intent = new Intent(view.getContext(), LocationActivity.class);
+        Intent intent = new Intent(view.getContext(), LocationActivity_.class);
         startActivity(intent);
     }
 

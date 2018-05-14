@@ -26,7 +26,7 @@
         </activity>
         <activity android:name=".OfferActivity_" />
         <activity android:name=".CategoriesActivity" />
-        <activity android:name=".LocationActivity" />
+        <activity android:name=".LocationActivity_" />
         <activity android:name=".AskActivity" />
         <activity android:name=".MakeOfferActivity" />
         <activity
