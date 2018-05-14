@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
+import android.widget.SearchView;
 
 import com.app.sell.adapter.OffersAdapter;
 import com.app.sell.model.Offer;
@@ -18,9 +18,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -33,7 +35,6 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
-    private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -47,7 +48,7 @@ public class HomeFragment extends Fragment {
 
     private List<Offer> offers;
 
-    DatabaseReference databaseOffers;
+    Query databaseOffers;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -90,18 +91,20 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         final GridView gridview = (GridView) v.findViewById(R.id.gridview);
+        final SearchView searchView = (SearchView) v.findViewById(R.id.search_view);
 
-        databaseOffers = FirebaseDatabase.getInstance().getReference("offers");
+        databaseOffers = FirebaseDatabase.getInstance().getReference("offers").orderByChild("timestamp");
 
         databaseOffers.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 offers.clear();
-                for (DataSnapshot offerSnapshop: dataSnapshot.getChildren()) {
-                    Offer offer = offerSnapshop.getValue(Offer.class);
+                for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
+                    Offer offer = offerSnapshot.getValue(Offer.class);
                     offers.add(offer);
                 }
 
+                Collections.reverse(offers);
                 gridview.setAdapter(new OffersAdapter(getContext(), offers));
 
             }
@@ -120,6 +123,27 @@ public class HomeFragment extends Fragment {
                 intent.putExtra("offerId",offer.getId());
                 startActivity(intent);
             }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if(newText.length() == 0) {
+                    ((MainActivity)getActivity()).setSearchTermForQuery("");
+                    ((MainActivity)getActivity()).searchSort();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                ((MainActivity)getActivity()).setSearchTermForQuery(query);
+                ((MainActivity)getActivity()).searchSort();
+                return true;
+            }
+
         });
         return v;
     }

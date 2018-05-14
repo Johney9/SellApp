@@ -12,5 +12,6 @@ public class Offer {
     private String location;
     private String image;
     private String offererId;
+    private Long timestamp;
 
 }
