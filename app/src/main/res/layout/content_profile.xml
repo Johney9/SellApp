@@ -9,8 +9,6 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-
-
     </LinearLayout>
 
 </android.support.v4.widget.NestedScrollView>

@@ -29,7 +29,7 @@
                 android:orientation="vertical">
 
                 <com.makeramen.roundedimageview.RoundedImageView
-                    android:id="@+id/imageView"
+                    android:id="@+id/profile_image_imageview"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/app_bar_height"
                     android:scaleType="fitCenter"

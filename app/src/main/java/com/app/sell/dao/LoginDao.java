@@ -20,7 +20,7 @@ import org.androidannotations.annotations.RootContext;
 import org.greenrobot.eventbus.EventBus;
 
 @EBean(scope = EBean.Scope.Singleton)
-public class UserDao {
+public class LoginDao {
 
     private static final String USERS_TAG = "users";
     @RootContext
@@ -38,7 +38,7 @@ public class UserDao {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 setCurrentUser(dataSnapshot.getValue(User.class));
-                if(getCurrentUser() == null) {
+                if (getCurrentUser() == null) {
                     registerNewUser(getCurrentUser(), mAuth);
                 }
                 EventBus.getDefault().post(new UserRetrievedEvent(getCurrentUser()));
@@ -54,7 +54,7 @@ public class UserDao {
 
     private void registerNewUser(User currentUser, FirebaseAuth mAuth) {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        if(firebaseUser != null) {
+        if (firebaseUser != null) {
             setCurrentUser(new User(firebaseUser));
             writeCurrentUser();
         }
