@@ -8,8 +8,11 @@ import android.widget.TextView;
 import com.app.sell.adapter.UserOffersAdapter;
 import com.app.sell.model.Offer;
 
+import org.androidannotations.annotations.EActivity;
+
 import java.util.ArrayList;
 
+@EActivity
 public class ProfileActivity extends AppCompatActivity {
 
     @Override

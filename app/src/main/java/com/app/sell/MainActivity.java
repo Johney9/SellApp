@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                     transaction.replace(R.id.content, new HomeFragment()).commit();
                     return true;
                 case R.id.navigation_notifications:
-                    openNotificationsActivity();
+                    NotificationsActivity_.intent(getApplicationContext()).start();
                     return true;
                 case R.id.navigation_photo:
                     openPostOfferActivity(findViewById(android.R.id.content));
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                     transaction.replace(R.id.content, new MyOffersFragment()).commit();
                     return true;
                 case R.id.navigation_account:
-                    openAccountActivity();
+                    AccountActivity_.intent(getApplicationContext()).start();
                     return true;
             }
             return false;
@@ -89,7 +89,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        startHomeScreen();
+    }
 
+    private void startHomeScreen() {
         BottomNavigationViewHelper.disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -260,23 +263,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openLocationActivity(View view) {
-        Intent intent = new Intent(view.getContext(), LocationActivity.class);
+        Intent intent = new Intent(view.getContext(), LocationActivity_.class);
         startActivity(intent);
     }
 
     public void openPostOfferActivity(View view) {
         Intent intent = new Intent(view.getContext(), PostOfferActivity.class);
         startActivity(intent);
-    }
-
-    public void openNotificationsActivity() {
-        Intent notificationsIntent = new Intent(MainActivity.this, NotificationsActivity.class);
-        startActivity(notificationsIntent);
-    }
-
-    public void openAccountActivity() {
-        Intent accountIntent = new Intent(MainActivity.this, AccountActivity.class);
-        startActivity(accountIntent);
     }
 
     public void setSearchTermForQuery(String searchTermForQuery) {

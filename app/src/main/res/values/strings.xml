@@ -45,4 +45,13 @@
     <string name="title_activity_account">Account</string>
     <string name="title_activity_edit_account">Edit Account Details</string>
     <string name="title_activity_change_picture">Change Profile Picture</string>
+    <string name="sign_in_cancelled">Sign in was cancelled by you.</string>
+    <string name="no_internet_connection">Could not reach servers. Check your internet connection?</string>
+    <string name="unknown_error">Unknown error encountered.</string>
+    <string name="sign_out_failed">Sign out has failed. Please try again later.</string>
+    <string name="sign_out">Sign out</string>
+    <string name="default_location">Novi Sad, Serbia</string>
+    <string name="selling_question">Where are you selling?</string>
+    <string name="take_a_new_photo">Take a new photo</string>
+    <string name="select_an_existing_photo">Select an existing photo</string>
 </resources>

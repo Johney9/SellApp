@@ -120,7 +120,7 @@ public class OfferActivity extends AppCompatActivity {
     }
 
     public void openProfileActivity(View view) {
-        Intent intent = new Intent(view.getContext(), ProfileActivity.class);
+        Intent intent = new Intent(view.getContext(), ProfileActivity_.class);
         intent.putExtra("username", offerUserName.getText());
         startActivity(intent);
     }

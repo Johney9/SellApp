@@ -26,6 +26,7 @@
             android:layout_marginTop="10dp"/>
 
         <EditText
+            android:id="@+id/location_edit_text_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="Enter location"/>
@@ -38,6 +39,7 @@
 
 
         <Button
+            android:id="@+id/location_save_location_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Save location"
