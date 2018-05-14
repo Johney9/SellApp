@@ -72,7 +72,10 @@ public class AccountActivity extends AppCompatActivity {
     void bind(UserRetrievedEvent userRetrievedEvent) {
         User currentUser = userDao.getCurrentUser();
 
-        if (currentUser == null) return;
+        if (currentUser == null) {
+            userDao.init();
+            return;
+        }
 
         for (TextView textView : textViews) {
             String id = textView.getResources().getResourceName(textView.getId());
@@ -107,6 +110,7 @@ public class AccountActivity extends AppCompatActivity {
                         }
                     }
                 });
+        userDao.setCurrentUser(null);
     }
 
     public void openEditAccountActivity(View view) {

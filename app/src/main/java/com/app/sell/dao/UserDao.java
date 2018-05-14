@@ -38,6 +38,9 @@ public class UserDao {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 setCurrentUser(dataSnapshot.getValue(User.class));
+                if(getCurrentUser() == null) {
+                    registerNewUser(getCurrentUser(), mAuth);
+                }
                 EventBus.getDefault().post(new UserRetrievedEvent(getCurrentUser()));
                 Log.d("current user loaded", "current user loaded");
             }
@@ -47,6 +50,14 @@ public class UserDao {
                 Log.d("users cancelled", "users cancelled");
             }
         });
+    }
+
+    private void registerNewUser(User currentUser, FirebaseAuth mAuth) {
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if(firebaseUser != null) {
+            setCurrentUser(new User(firebaseUser));
+            writeCurrentUser();
+        }
     }
 
     private FirebaseUser getFirebaseUserOrPromptLogin(FirebaseAuth auth) {
