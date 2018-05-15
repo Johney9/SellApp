@@ -70,12 +70,13 @@ public class AccountActivity extends AppCompatActivity {
 
     @Subscribe
     void bind(UserRetrievedEvent userRetrievedEvent) {
-        User currentUser = loginDao.getCurrentUser();
 
-        if (currentUser == null) {
+        if ( !loginDao.isUserLoggedIn() ) {
             loginDao.init();
             return;
         }
+
+        User currentUser = loginDao.getCurrentUser();
 
         for (TextView textView : textViews) {
             String id = textView.getResources().getResourceName(textView.getId());
@@ -110,7 +111,7 @@ public class AccountActivity extends AppCompatActivity {
                         }
                     }
                 });
-        loginDao.setCurrentUser(null);
+        loginDao.removeLoggedInUser();
     }
 
     public void openEditAccountActivity(View view) {

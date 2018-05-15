@@ -39,7 +39,7 @@ public class LoginDao {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 setCurrentUser(dataSnapshot.getValue(User.class));
                 if (getCurrentUser() == null) {
-                    registerNewUser(getCurrentUser(), mAuth);
+                    registerNewUser(mAuth);
                 }
                 EventBus.getDefault().post(new UserRetrievedEvent(getCurrentUser()));
                 Log.d("current user loaded", "current user loaded");
@@ -52,7 +52,7 @@ public class LoginDao {
         });
     }
 
-    private void registerNewUser(User currentUser, FirebaseAuth mAuth) {
+    private void registerNewUser(FirebaseAuth mAuth) {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser != null) {
             setCurrentUser(new User(firebaseUser));
@@ -62,10 +62,22 @@ public class LoginDao {
 
     private FirebaseUser getFirebaseUserOrPromptLogin(FirebaseAuth auth) {
         FirebaseUser user = auth.getCurrentUser();
-        if (user == null)
+        if (user == null) {
             LoginActivity_.intent(context).start();
-
+            user = auth.getCurrentUser();
+        }
         return user;
+    }
+
+    public boolean isUserLoggedIn() {
+        boolean isLogged = false;
+        if(getCurrentUser() != null)
+            isLogged = true;
+        return isLogged;
+    }
+
+    public void removeLoggedInUser() {
+        setCurrentUser(null);
     }
 
     public void write(User user) {
@@ -81,7 +93,7 @@ public class LoginDao {
         return currentUser;
     }
 
-    public void setCurrentUser(User currentUser) {
+    private void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
     }
 }
