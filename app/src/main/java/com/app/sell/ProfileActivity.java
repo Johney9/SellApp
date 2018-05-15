@@ -1,6 +1,9 @@
 package com.app.sell;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
 
@@ -8,10 +11,12 @@ import com.app.sell.adapter.UserOffersAdapter;
 import com.app.sell.dao.SpecificUserOffersDao;
 import com.app.sell.events.OffersRetrievedEvent;
 import com.app.sell.events.UserRetrievedEvent;
+import com.app.sell.model.Offer;
 import com.app.sell.model.User;
 import com.makeramen.roundedimageview.RoundedImageView;
 import com.squareup.picasso.Picasso;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -50,9 +55,22 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        uid = getIntent().getStringExtra("uid");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        uid = getIntent().getStringExtra("uid");
         specificUserOffersDao.getData(uid);
+    }
+
+    @AfterViews
+    void init() {
+        mOffersGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View v,
+                                    int position, long id) {
+                Offer offer = (Offer)mOffersGridView.getAdapter().getItem(position);
+                Intent intent = new Intent(v.getContext(), OfferActivity_.class);
+                intent.putExtra("offerId",offer.getId());
+                startActivity(intent);
+            }
+        });
     }
 
     @Subscribe
