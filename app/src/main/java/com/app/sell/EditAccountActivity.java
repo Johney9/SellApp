@@ -36,10 +36,10 @@ public class EditAccountActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        populateWithUserData();
+        bind();
     }
 
-    void populateWithUserData() {
+    void bind() {
         User currentUser = loginDao.getCurrentUser();
 
         for (EditText editText : textViews) {
