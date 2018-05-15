@@ -20,6 +20,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.klinker.android.badged_imageview.BadgedImageView;
 
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
@@ -32,27 +33,20 @@ public class OfferActivity extends AppCompatActivity {
 
     DatabaseReference databaseOffer;
     DatabaseReference databaseUser;
-    private Offer offer;
-    private User user;
-
     @ViewById(R.id.offer_title)
     TextView offerTitle;
-
     @ViewById(R.id.offer_description)
     TextView offerDescription;
-
     @ViewById(R.id.offer_location)
     TextView offerLocation;
-
     @ViewById(R.id.offer_image)
     BadgedImageView offerImage;
-
     @ViewById(R.id.offer_user_image)
     ImageView offerUserImage;
-
     @ViewById(R.id.offer_user_name)
     TextView offerUserName;
-
+    private Offer offer;
+    private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +79,7 @@ public class OfferActivity extends AppCompatActivity {
                 }
                 offerImage.setImageBitmap(bmp);
                 offerImage.setBadge(offer.getPrice().toString());
-                databaseUser  = FirebaseDatabase.getInstance().getReference("users").child(offer.getOffererId());
+                databaseUser = FirebaseDatabase.getInstance().getReference("users").child(offer.getOffererId());
                 databaseUser.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -119,9 +113,10 @@ public class OfferActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Click(R.id.offer_user_area)
     public void openProfileActivity(View view) {
         Intent intent = new Intent(view.getContext(), ProfileActivity_.class);
-        intent.putExtra("username", offerUserName.getText());
+        intent.putExtra("uid", offer.getOffererId());
         startActivity(intent);
     }
 }

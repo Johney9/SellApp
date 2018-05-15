@@ -18,18 +18,12 @@ import org.androidannotations.annotations.OnActivityResult;
 import java.util.ArrayList;
 import java.util.List;
 
-@EActivity
+@EActivity(R.layout.activity_login)
 public class LoginActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = LoginActivity.class.getSimpleName();
     FirebaseAuth mAuth;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-    }
 
     @Override
     protected void onResume() {

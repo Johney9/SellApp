@@ -6,7 +6,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 
-import com.app.sell.dao.UserDao;
+import com.app.sell.dao.LoginDao;
 import com.app.sell.model.User;
 
 import org.androidannotations.annotations.AfterViews;
@@ -21,7 +21,7 @@ public class EditAccountActivity extends AppCompatActivity {
 
     static final int LOCATION_REQUEST = 21225;
     @Bean
-    UserDao userDao;
+    LoginDao loginDao;
 
     @ViewsById({R.id.editText_name, R.id.editText_email, R.id.editText_password})
     List<EditText> textViews;
@@ -36,11 +36,11 @@ public class EditAccountActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        populateWithUserData();
+        bind();
     }
 
-    void populateWithUserData() {
-        User currentUser = userDao.getCurrentUser();
+    void bind() {
+        User currentUser = loginDao.getCurrentUser();
 
         for (EditText editText : textViews) {
             String id = editText.getResources().getResourceName(editText.getId());

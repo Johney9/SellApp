@@ -13,7 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.app.sell.dao.UserDao;
+import com.app.sell.dao.LoginDao;
 import com.app.sell.model.User;
 import com.app.sell.view.SquareImageView;
 import com.squareup.picasso.Picasso;
@@ -44,7 +44,7 @@ public class ChangePictureActivity extends AppCompatActivity {
     SquareImageView mProfileImage;
 
     @Bean
-    UserDao userDao;
+    LoginDao loginDao;
 
     @AfterViews
     void init() {
@@ -60,7 +60,7 @@ public class ChangePictureActivity extends AppCompatActivity {
     }
 
     void bind() {
-        User currentUser = userDao.getCurrentUser();
+        User currentUser = loginDao.getCurrentUser();
         Picasso.get().load(currentUser.getImage()).into(mProfileImage);
     }
 
@@ -129,9 +129,9 @@ public class ChangePictureActivity extends AppCompatActivity {
     }
 
     private void changeProfilePhoto(@NonNull Uri uri, ImageView imageView) {
-        User currentUser = userDao.getCurrentUser();
+        User currentUser = loginDao.getCurrentUser();
         currentUser.setImage(uri.toString());
-        userDao.writeCurrentUser();
+        loginDao.writeCurrentUser();
         Picasso.get().load(currentUser.getImage()).into(imageView);
     }
 }

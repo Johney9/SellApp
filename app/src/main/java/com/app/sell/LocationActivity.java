@@ -6,7 +6,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.app.sell.dao.UserDao;
+import com.app.sell.dao.LoginDao;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
@@ -25,7 +25,7 @@ public class LocationActivity extends AppCompatActivity {
     Button saveLocationButton;
 
     @Bean
-    UserDao userDao;
+    LoginDao loginDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +34,7 @@ public class LocationActivity extends AppCompatActivity {
         mQuestion = findViewById(R.id.question);
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
-            if(extras != null && extras.getInt("requestCode") == PostOfferFinishFragment.REQ_SELL_LOCATION) {
+            if (extras != null && extras.getInt("requestCode") == PostOfferFinishFragment.REQ_SELL_LOCATION) {
                 mQuestion.setText(R.string.selling_question);
             }
         }
@@ -43,8 +43,8 @@ public class LocationActivity extends AppCompatActivity {
     @Click(R.id.location_save_location_button)
     void saveLocation() {
 
-        userDao.getCurrentUser().setLocation(locationEditText.getText().toString());
-        userDao.write(userDao.getCurrentUser());
+        loginDao.getCurrentUser().setLocation(locationEditText.getText().toString());
+        loginDao.write(loginDao.getCurrentUser());
         finish();
     }
 

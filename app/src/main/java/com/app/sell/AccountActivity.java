@@ -9,7 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.app.sell.dao.UserDao;
+import com.app.sell.dao.LoginDao;
 import com.app.sell.events.UserRetrievedEvent;
 import com.app.sell.model.User;
 import com.firebase.ui.auth.AuthUI;
@@ -41,7 +41,7 @@ public class AccountActivity extends AppCompatActivity {
     RoundedImageView profileImage;
 
     @Bean
-    UserDao userDao;
+    LoginDao loginDao;
 
     @AfterViews
     void init() {
@@ -70,12 +70,13 @@ public class AccountActivity extends AppCompatActivity {
 
     @Subscribe
     void bind(UserRetrievedEvent userRetrievedEvent) {
-        User currentUser = userDao.getCurrentUser();
 
-        if (currentUser == null) {
-            userDao.init();
+        if ( !loginDao.isUserLoggedIn() ) {
+            loginDao.init();
             return;
         }
+
+        User currentUser = loginDao.getCurrentUser();
 
         for (TextView textView : textViews) {
             String id = textView.getResources().getResourceName(textView.getId());
@@ -110,7 +111,7 @@ public class AccountActivity extends AppCompatActivity {
                         }
                     }
                 });
-        userDao.setCurrentUser(null);
+        loginDao.removeLoggedInUser();
     }
 
     public void openEditAccountActivity(View view) {
