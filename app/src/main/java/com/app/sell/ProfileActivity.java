@@ -74,14 +74,14 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    void bindUsers(UserRetrievedEvent userRetrievedEvent) {
+    public void bindUsers(UserRetrievedEvent userRetrievedEvent) {
         User user = userRetrievedEvent.user;
         mProfileUsernameTextView.setText(user.getUsername());
         Picasso.get().load(user.getImage()).into(mProfileImage);
     }
 
     @Subscribe
-    void bindOffers(OffersRetrievedEvent offersRetrievedEvent) {
+    public void bindOffers(OffersRetrievedEvent offersRetrievedEvent) {
         mOffersGridView.setAdapter(new UserOffersAdapter(this, offersRetrievedEvent.offers));
     }
 }

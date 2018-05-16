@@ -18,9 +18,11 @@ public class NotificationsAdapter extends BaseAdapter {
 
     private final List<NotificationItem> mNotificationsList = new ArrayList<NotificationItem>();
     private final LayoutInflater mInflater;
+    private final Context context;
 
     public NotificationsAdapter(Context context) {
-        mInflater = LayoutInflater.from(context);
+        this.context = context;
+        mInflater = LayoutInflater.from(this.context);
         for(int i=0; i<15; i++) {
             mNotificationsList.add(new NotificationItem("Message", "How does this price sound? " + new Random().nextInt()*(i+1) % 2000, R.drawable.mv));
         }
