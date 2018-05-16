@@ -69,7 +69,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    void bind(UserRetrievedEvent userRetrievedEvent) {
+    public void bind(UserRetrievedEvent userRetrievedEvent) {
 
         if ( !loginDao.isUserLoggedIn() ) {
             loginDao.init();
