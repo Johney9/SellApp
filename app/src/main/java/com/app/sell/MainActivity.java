@@ -22,12 +22,14 @@ import android.widget.Toast;
 import com.app.sell.adapter.OffersAdapter;
 import com.app.sell.helper.BottomNavigationViewHelper;
 import com.app.sell.model.Offer;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -39,6 +41,8 @@ import java.util.List;
 
 @EActivity
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     private enum Sort {
         NEWEST_FIRST, CLOSEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
@@ -107,6 +111,29 @@ public class MainActivity extends AppCompatActivity {
         priceFromForQuery = 0;
         priceToForQuery = Double.MAX_VALUE;
         currentSorting = Sort.NEWEST_FIRST;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initFCM();
+    }
+
+    private void initFCM() {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        Log.d(TAG, "initFCM: token: " + token);
+        sendRegistrationToServer(token);
+    }
+
+    private void sendRegistrationToServer(String token) {
+        Log.d(TAG, "sendRegistrationToServer: sending token to the server: " + token);
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+        reference.child(getString(R.string.db_node_users))
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child(getString(R.string.field_messaging_token))
+                .setValue(token);
     }
 
     public void searchSort() {

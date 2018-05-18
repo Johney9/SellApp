@@ -21,6 +21,7 @@ public class User {
     private String location;
     private String image;
     private String email;
+    private String messagingToken;
 
     public User(FirebaseUser firebaseUser) {
         this.setImage(String.valueOf(firebaseUser.getPhotoUrl()));

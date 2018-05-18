@@ -38,7 +38,7 @@ public class LoginDao {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 setCurrentUser(dataSnapshot.getValue(User.class));
-                if (getCurrentUser() == null) {
+                if (getCurrentUser() == null || getCurrentUser().getUid() == null) {
                     registerNewUser(mAuth);
                 }
                 EventBus.getDefault().post(new UserRetrievedEvent(getCurrentUser()));
