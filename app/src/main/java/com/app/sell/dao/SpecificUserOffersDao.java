@@ -1,7 +1,9 @@
 package com.app.sell.dao;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.app.sell.R;
 import com.app.sell.events.OffersRetrievedEvent;
 import com.app.sell.events.UserRetrievedEvent;
 import com.app.sell.model.Offer;
@@ -14,6 +16,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
+import org.androidannotations.annotations.RootContext;
 import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
@@ -22,13 +25,19 @@ import java.util.List;
 @EBean
 public class SpecificUserOffersDao {
 
-    private static final String USERS_TAG = "users";
-    private static final String OFFERS_TAG = "offers";
+    private static final String TAG = "SpecificUserOffersDao";
+    private static String USERS_TAG;
+    private static String OFFERS_TAG;
     FirebaseDatabase mDatabase;
+
+    @RootContext
+    Context context;
 
     @AfterInject
     void init() {
         mDatabase = FirebaseDatabase.getInstance();
+        USERS_TAG = context.getString(R.string.db_node_users);
+        OFFERS_TAG = context.getString(R.string.db_node_offers);
     }
 
     public void getData(final String uid) {
@@ -38,10 +47,10 @@ public class SpecificUserOffersDao {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user == null) {
-                    Log.d("No user found.", "No user found.");
+                    Log.d(TAG, "No user found.");
                 } else {
                     EventBus.getDefault().post(new UserRetrievedEvent(user));
-                    Log.d("user loaded", "current user loaded");
+                    Log.d(TAG, "current user loaded");
                 }
             }
 

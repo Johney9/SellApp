@@ -1,5 +1,6 @@
 package com.app.sell.services;
 
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.app.sell.R;
@@ -13,7 +14,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class SellAppFirebaseMessagingService extends FirebaseMessagingService {
@@ -38,22 +38,16 @@ public class SellAppFirebaseMessagingService extends FirebaseMessagingService {
         String message = notificationData.get(getString(R.string.message_data_message));
         String identifyDataType = notificationData.get(getString(R.string.message_data_type));
 
-        if(isApplicationInChat()) {
+        if(identifyDataType.contains(getString(R.string.data_type_chat_message)) && !isChatActivityRunning()) {
 
-            buildAndSendOfferNotification(title, message);
+            String chatroomId = notificationData.get(getString(R.string.message_data_chatroom_id));
+            processChatMessage(chatroomId, title, message);
 
-        }
-        else {
-            if(identifyDataType.contains(getString(R.string.data_type_chat_message))) {
+        } else if(identifyDataType.contains(getString(R.string.data_type_offer_message))) {
 
-                String chatroomId = notificationData.get(getString(R.string.message_data_chatroom_id));
-                processChatMessage(chatroomId, title, message);
+            String offerId = notificationData.get(getString(R.string.field_offer_id));
+            buildAndSendOfferNotification(title, message, offerId);
 
-            } else if(identifyDataType.contains(getString(R.string.data_type_offer_message))) {
-
-                buildAndSendOfferNotification(title, message);
-
-            }
         }
     }
 
@@ -70,33 +64,35 @@ public class SellAppFirebaseMessagingService extends FirebaseMessagingService {
                 DataSnapshot snapshot = dataSnapshot.getChildren().iterator().next();
 
                 Chatroom chatroom = new Chatroom();
-                Map<String, Object> objectMap = (HashMap<String, Object>) snapshot.getValue();
+                Map<String, Object> objectMap = (Map<String, Object>) snapshot.getValue();
 
-                chatroom.setChatroomName(objectMap.get(getString(R.string.field_chatroom_name)).toString());
-                chatroom.setChatroomId(objectMap.get(getString(R.string.field_chatroom_id)).toString());
-                chatroom.setAskerId(objectMap.get(getString(R.string.field_asker_id)).toString());
-                chatroom.setOffererId(objectMap.get(getString(R.string.field_owner_id)).toString());
-                chatroom.setOfferId(objectMap.get(getString(R.string.field_offer_id)).toString());
+                chatroom.setChatroomName(String.valueOf(objectMap.get(getString(R.string.field_chatroom_name))));
+                chatroom.setChatroomId(String.valueOf(objectMap.get(getString(R.string.field_chatroom_id))));
+                chatroom.setAskerId(String.valueOf(objectMap.get(getString(R.string.field_asker_id))));
+                chatroom.setOffererId(String.valueOf(objectMap.get(getString(R.string.field_owner_id))));
+                chatroom.setOfferId(String.valueOf(objectMap.get(getString(R.string.field_offer_id))));
 
                 Log.d(TAG, "onDataChange: chatroom: " + chatroom);
 
-                //TODO: make this work with number of messages.
-                /*
-                int numMessagesSeen = Integer.parseInt(snapshot
-                        .child(getString(R.string.db_node_users))
-                        .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                        .child(getString(R.string.field_last_message_seen))
-                        .getValue().toString());
-                        */
-                int numMessagesSeen = 0;
+                int numMessagesSeen;
+                try {
+                     numMessagesSeen = Integer.parseInt(snapshot
+                            .child(getString(R.string.db_node_users))
+                            .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .child(getString(R.string.field_last_message_seen))
+                            .getValue().toString());
+                } catch (NumberFormatException|NullPointerException e) {
+                    Log.e(TAG, "onDataChange: ", e);
+                    numMessagesSeen = 0;
+                }
 
-                int numMessages = (int) snapshot
+                int newMessages = (int) snapshot
                         .child(getString(R.string.field_chatroom_messages)).getChildrenCount();
 
-                numMessages -= numMessagesSeen;
-                Log.d(TAG, "onDataChange: num pending messages: " + numMessages);
+                newMessages -= numMessagesSeen;
+                Log.d(TAG, "onDataChange: num pending messages: " + newMessages);
 
-                buildAndSendChatNotification(title, message, chatroom, numMessages);
+                buildAndSendChatNotification(title, message, chatroom, newMessages);
             }
 
             @Override
@@ -106,16 +102,13 @@ public class SellAppFirebaseMessagingService extends FirebaseMessagingService {
         });
     }
 
-    private boolean isApplicationInChat() {
-        boolean isChatRunning = false;
-
-        //TODO: implement logic which checks if chat is active or not.
-
-        return isChatRunning;
+    protected Boolean isChatActivityRunning() {
+        SharedPreferences sp = getSharedPreferences(getString(R.string.ask_activity_shared_pref), MODE_PRIVATE);
+        return sp.getBoolean("active", false);
     }
 
-    private void buildAndSendOfferNotification(String title, String message) {
-        MessageNotificationService_.intent(this).handleOfferMessage(title, message, R.mipmap.ic_launcher).start();
+    private void buildAndSendOfferNotification(String title, String message, String offerId) {
+        MessageNotificationService_.intent(this).handleOfferMessage(title, message, offerId, R.mipmap.ic_launcher).start();
     }
 
     private void buildAndSendChatNotification(String title, String message, Chatroom chatroom, int numberOfMessages) {

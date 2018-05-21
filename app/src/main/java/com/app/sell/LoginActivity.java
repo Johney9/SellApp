@@ -1,7 +1,7 @@
 package com.app.sell;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,12 +18,14 @@ import org.androidannotations.annotations.OnActivityResult;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressLint("Registered")
 @EActivity(R.layout.activity_login)
 public class LoginActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = LoginActivity.class.getSimpleName();
     FirebaseAuth mAuth;
+
 
     @Override
     protected void onResume() {
@@ -33,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
         if (mAuth.getCurrentUser() == null) {
             startSignIn();
         } else {
-            startHomeActivity();
+            startMainActivity();
         }
     }
 
@@ -67,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
     @OnActivityResult(RC_SIGN_IN)
     void handleSignInResponse(int resultCode, Intent data) {
         IdpResponse response = IdpResponse.fromResultIntent(data);
-        Log.d("handleSignInResponse:", response.toString());
+        Log.d("handleSignInResponse:", response != null ? response.toString() : null);
 
         // Successfully signed in
         if (resultCode == RESULT_OK) {
@@ -97,7 +99,7 @@ public class LoginActivity extends AppCompatActivity {
         Snackbar.make(this.getCurrentFocus(), errorMessageRes, Snackbar.LENGTH_LONG).show();
     }
 
-    private void startHomeActivity() {
+    private void startMainActivity() {
         MainActivity_.intent(this).start();
     }
 }

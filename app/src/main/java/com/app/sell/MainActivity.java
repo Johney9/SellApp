@@ -32,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
@@ -59,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private double priceFromForQuery;
     private double priceToForQuery;
     private Sort currentSorting;
+    @Extra
+    String forwardToActivity;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -92,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         startHomeScreen();
     }
 
@@ -116,7 +118,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        initFCM();
+        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
+            LoginActivity_.intent(this).start();
+            finish();
+        } else if(forwardToActivity != null) {
+            try {
+                Intent intent = new Intent(this, Class.forName(forwardToActivity));
+                startActivity(intent);
+            } catch (ClassNotFoundException e) {
+                Log.e(TAG, "onResume: ", e);
+            }
+        }
+        else initFCM();
     }
 
     private void initFCM() {

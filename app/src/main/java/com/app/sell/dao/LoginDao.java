@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.app.sell.LoginActivity_;
+import com.app.sell.R;
 import com.app.sell.events.UserRetrievedEvent;
 import com.app.sell.model.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,7 +23,8 @@ import org.greenrobot.eventbus.EventBus;
 @EBean(scope = EBean.Scope.Singleton)
 public class LoginDao {
 
-    private static final String USERS_TAG = "users";
+    private static final String TAG = "LoginDao";
+    private static String USERS_TAG;
     @RootContext
     Context context;
     private FirebaseDatabase db = FirebaseDatabase.getInstance();
@@ -31,6 +33,7 @@ public class LoginDao {
 
     @AfterInject
     public void init() {
+        USERS_TAG = context.getString(R.string.db_node_users);
 
         String uid = getFirebaseUserOrPromptLogin(mAuth).getUid();
         final DatabaseReference usersRef = db.getReference(USERS_TAG + "/" + uid);
@@ -42,12 +45,12 @@ public class LoginDao {
                     registerNewUser(mAuth);
                 }
                 EventBus.getDefault().post(new UserRetrievedEvent(getCurrentUser()));
-                Log.d("current user loaded", "current user loaded");
+                Log.d(TAG, "current user loaded");
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d("users cancelled", "users cancelled");
+                Log.d(TAG, "users cancelled");
             }
         });
     }
