@@ -9,7 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.sell.adapter.OffersAdapter;
+import com.app.sell.dao.LoginDao;
 import com.app.sell.helper.BottomNavigationViewHelper;
 import com.app.sell.model.Offer;
 import com.google.firebase.database.DataSnapshot;
@@ -29,22 +29,27 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @EActivity
 public class MainActivity extends AppCompatActivity {
 
-    private enum Sort {
-        NEWEST_FIRST, CLOSEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
+    private enum SORT {
+        NEWEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
     }
 
-    private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
+    private enum DISTANCE {
+        FIVE, TEN, TWENTY, FIFTY, HUNDRED, ANY
+    }
+
+    private String[] sort = {"Newest first", "Price: Low to high", "Price: High to low"};
+    private String[] distance = {"< 5 km", "< 10 km", "< 20 km", "< 50 km", "< 100 km", "Any"};
     @ViewById(R.id.navigation)
     BottomNavigationView navigation;
     DatabaseReference databaseOffers;
@@ -54,7 +59,10 @@ public class MainActivity extends AppCompatActivity {
     private String searchTermForQuery;
     private double priceFromForQuery;
     private double priceToForQuery;
-    private Sort currentSorting;
+    private SORT currentSorting;
+    private DISTANCE currentDistance;
+    @Bean
+    LoginDao loginDao;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -106,15 +114,16 @@ public class MainActivity extends AppCompatActivity {
         searchTermForQuery = "";
         priceFromForQuery = 0;
         priceToForQuery = Double.MAX_VALUE;
-        currentSorting = Sort.NEWEST_FIRST;
+        currentSorting = SORT.NEWEST_FIRST;
+        currentDistance = DISTANCE.ANY;
     }
 
     public void searchSort() {
         final GridView gridview = (GridView) findViewById(R.id.gridview);
         Query searchedOffers = databaseOffers;
-        if(currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.PRICE_LOW_HIGH) {
+        if(currentSorting == SORT.PRICE_HIGH_LOW || currentSorting == SORT.PRICE_LOW_HIGH) {
             searchedOffers = searchedOffers.orderByChild("price");
-        } else if (currentSorting == Sort.NEWEST_FIRST) {
+        } else if (currentSorting == SORT.NEWEST_FIRST) {
             searchedOffers = searchedOffers.orderByChild("timestamp");
         }
         searchedOffers.addValueEventListener(new ValueEventListener() {
@@ -124,12 +133,12 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
                     Offer offer = offerSnapshot.getValue(Offer.class);
 //                    if(searchTermForQuery.length() == 0 || searchTermForQuery.length() != 0 && offer.getTitle().contains(searchTermForQuery)) {
-                    if(checkSearchTerm(offer) && checkPrice(offer)) {
+                    if(checkSearchTerm(offer) && checkPrice(offer) && checkDistance(offer)) {
                         offers.add(offer);
                     }
                 }
 
-                if(currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.NEWEST_FIRST) {
+                if(currentSorting == SORT.PRICE_HIGH_LOW || currentSorting == SORT.NEWEST_FIRST) {
                     Collections.reverse(offers);
                 }
 
@@ -150,6 +159,48 @@ public class MainActivity extends AppCompatActivity {
         return offer.getPrice() >= priceFromForQuery && offer.getPrice() <= priceToForQuery;
     }
 
+    private boolean checkDistance(Offer offer) {
+        double userLat = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[0]);
+        double userLng = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[1]);
+        double offerLat = Double.parseDouble(offer.getLocation().split(",")[0]);
+        double offerLng = Double.parseDouble(offer.getLocation().split(",")[1]);
+        boolean isGoodDistance;
+        double dis = distance(userLat, userLng, offerLat, offerLng);
+        switch (currentDistance) {
+            case FIVE:  isGoodDistance = dis <= 5;
+                break;
+            case TEN:  isGoodDistance = dis <= 10;
+                break;
+            case TWENTY:  isGoodDistance = dis <= 20;
+                break;
+            case FIFTY:  isGoodDistance = dis <= 50;
+                break;
+            case ANY:  isGoodDistance = true;
+                break;
+            default: isGoodDistance = true;
+                break;
+        }
+        return isGoodDistance;
+    }
+
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        double theta = lon1 - lon2;
+        double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515;
+        dist = dist * 1.609344;
+        return dist;
+    }
+
+    private double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    private double rad2deg(double rad) {
+        return (rad * 180 / Math.PI);
+    }
+
     public void searchSort(View view) {
         final SearchView searchView = (SearchView) findViewById(R.id.search_view);
 
@@ -165,16 +216,37 @@ public class MainActivity extends AppCompatActivity {
                 .OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 Toast.makeText(getApplicationContext(),
-                        "Sort = " + sort[item], Toast.LENGTH_SHORT).show();
+                        "SORT = " + sort[item], Toast.LENGTH_SHORT).show();
                 TextView sortText = (TextView) findViewById(R.id.sort);
                 sortText.setText(sort[item]);
-                currentSorting = Sort.values()[item];
+                currentSorting = SORT.values()[item];
                 searchSort();
                 dialog.dismiss();
 
             }
         });
         AlertDialog alert = sortDialog.create();
+        alert.show();
+    }
+
+    public void openDistanceDialog(View view) {
+        AlertDialog.Builder distanceDialog = new AlertDialog.Builder(this);
+        //alt_bld.setIcon(R.drawable.icon);
+        distanceDialog.setTitle("Select a distance");
+        distanceDialog.setSingleChoiceItems(distance, currentDistance.ordinal(), new DialogInterface
+                .OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                Toast.makeText(getApplicationContext(),
+                        "DISTANCE = " + distance[item], Toast.LENGTH_SHORT).show();
+                TextView distanceText = (TextView) findViewById(R.id.distance);
+                currentDistance = DISTANCE.values()[item];
+                distanceText.setText("Distance: " + distance[item]);
+                searchSort();
+                dialog.dismiss();
+
+            }
+        });
+        AlertDialog alert = distanceDialog.create();
         alert.show();
     }
 
@@ -264,7 +336,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void openLocationActivity(View view) {
         Intent intent = new Intent(view.getContext(), LocationActivity_.class);
-        startActivity(intent);
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    public void onActivityResult(int arg1, int arg2, Intent data )
+    {
+        if(arg1 == 1)
+        {
+            searchSort();
+        }
     }
 
     public void openPostOfferActivity(View view) {
