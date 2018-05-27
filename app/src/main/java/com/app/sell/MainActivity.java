@@ -20,8 +20,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.sell.adapter.OffersAdapter;
+import com.app.sell.dao.LoginDao;
 import com.app.sell.helper.BottomNavigationViewHelper;
 import com.app.sell.model.Offer;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,28 +33,27 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 @EActivity
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-
-    private enum Sort {
-        NEWEST_FIRST, CLOSEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
-    }
-
-    private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
     @ViewById(R.id.navigation)
     BottomNavigationView navigation;
     DatabaseReference databaseOffers;
+    @Extra
+    String forwardToActivity;
+    @Bean
+    LoginDao loginDao;
+    private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
     private List<Offer> offers;
     private String priceFromEdit;
     private String priceToEdit;
@@ -60,9 +61,6 @@ public class MainActivity extends AppCompatActivity {
     private double priceFromForQuery;
     private double priceToForQuery;
     private Sort currentSorting;
-    @Extra
-    String forwardToActivity;
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -118,10 +116,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(FirebaseAuth.getInstance().getCurrentUser() == null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             LoginActivity_.intent(this).start();
             finish();
-        } else if(forwardToActivity != null) {
+        } else if (forwardToActivity != null) {
             try {
                 Intent intent = new Intent(this, Class.forName(forwardToActivity));
                 startActivity(intent);
@@ -129,30 +127,15 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "onResume: ", e);
             }
         }
-        else initFCM();
-    }
-
-    private void initFCM() {
-        String token = FirebaseInstanceId.getInstance().getToken();
-        Log.d(TAG, "initFCM: token: " + token);
-        sendRegistrationToServer(token);
-    }
-
-    private void sendRegistrationToServer(String token) {
-        Log.d(TAG, "sendRegistrationToServer: sending token to the server: " + token);
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-
-        reference.child(getString(R.string.db_node_users))
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .child(getString(R.string.field_messaging_token))
-                .setValue(token);
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            initFCM();
+        }
     }
 
     public void searchSort() {
         final GridView gridview = (GridView) findViewById(R.id.gridview);
         Query searchedOffers = databaseOffers;
-        if(currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.PRICE_LOW_HIGH) {
+        if (currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.PRICE_LOW_HIGH) {
             searchedOffers = searchedOffers.orderByChild("price");
         } else if (currentSorting == Sort.NEWEST_FIRST) {
             searchedOffers = searchedOffers.orderByChild("timestamp");
@@ -164,12 +147,12 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
                     Offer offer = offerSnapshot.getValue(Offer.class);
 //                    if(searchTermForQuery.length() == 0 || searchTermForQuery.length() != 0 && offer.getTitle().contains(searchTermForQuery)) {
-                    if(checkSearchTerm(offer) && checkPrice(offer)) {
+                    if (checkSearchTerm(offer) && checkPrice(offer)) {
                         offers.add(offer);
                     }
                 }
 
-                if(currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.NEWEST_FIRST) {
+                if (currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.NEWEST_FIRST) {
                     Collections.reverse(offers);
                 }
 
@@ -182,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private boolean checkSearchTerm(Offer offer){
+    private boolean checkSearchTerm(Offer offer) {
         return searchTermForQuery.length() == 0 || offer.getTitle().contains(searchTermForQuery);
     }
 
@@ -199,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void openSortDialog(View view) {
         AlertDialog.Builder sortDialog = new AlertDialog.Builder(this);
-        //alt_bld.setIcon(R.drawable.icon);
+        //alt_bld.setIconURI(R.drawable.iconURI);
         sortDialog.setTitle("Select a sorting");
         sortDialog.setSingleChoiceItems(sort, currentSorting.ordinal(), new DialogInterface
                 .OnClickListener() {
@@ -239,11 +222,11 @@ public class MainActivity extends AppCompatActivity {
                                 String priceTo = priceToText.getText().toString().trim();
                                 boolean minPriceSet = true;
                                 boolean maxPriceSet = true;
-                                if(priceFrom.length() == 0){
+                                if (priceFrom.length() == 0) {
                                     priceFrom = "0";
                                     minPriceSet = false;
                                 }
-                                if(priceTo.length() == 0){
+                                if (priceTo.length() == 0) {
                                     priceTo = String.valueOf(Double.MAX_VALUE);
                                     maxPriceSet = false;
                                 }
@@ -257,8 +240,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 final EditText price = findViewById(R.id.price);
                                 String priceText = "Price: Any";
-                                if(minPriceSet && maxPriceSet){
-                                    priceText = "$" +  priceFrom + " - " + "$" + priceTo;
+                                if (minPriceSet && maxPriceSet) {
+                                    priceText = "$" + priceFrom + " - " + "$" + priceTo;
 //                                    offersByPrice = offersByPrice.orderByChild("price").startAt(fromPrice).endAt(toPrice);
                                     priceFromEdit = priceFrom;
                                     priceToEdit = priceTo;
@@ -267,12 +250,12 @@ public class MainActivity extends AppCompatActivity {
                                     priceFromEdit = priceFrom;
                                     priceToEdit = "";
 //                                    offersByPrice = offersByPrice.orderByChild("price").startAt(fromPrice);
-                                } else if(maxPriceSet) {
+                                } else if (maxPriceSet) {
                                     priceText = "To $" + priceTo;
                                     priceFromEdit = "";
                                     priceToEdit = priceTo;
 //                                    offersByPrice = offersByPrice.orderByChild("price").endAt(toPrice);
-                                } else{
+                                } else {
                                     priceFromEdit = "";
                                     priceToEdit = "";
                                 }
@@ -314,5 +297,34 @@ public class MainActivity extends AppCompatActivity {
 
     public void setSearchTermForQuery(String searchTermForQuery) {
         this.searchTermForQuery = searchTermForQuery;
+    }
+
+    protected void initFCM() {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        Log.d(TAG, "initFCM: token: " + token);
+        sendRegistrationToServer(token);
+    }
+
+    private void sendRegistrationToServer(final String token) {
+        Log.d(TAG, "sendRegistrationToServer: sending token to the server: " + token);
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+        reference.child(getString(R.string.db_node_users))
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child(getString(R.string.field_messaging_token))
+                .setValue(token).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                if (!token.contentEquals(loginDao.getCurrentUser().getMessagingToken())) {
+                    loginDao.getCurrentUser().setMessagingToken(token);
+                    loginDao.writeCurrentUser();
+                }
+            }
+        });
+    }
+
+    private enum Sort {
+        NEWEST_FIRST, CLOSEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
     }
 }

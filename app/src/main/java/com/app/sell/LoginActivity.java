@@ -7,11 +7,13 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.app.sell.dao.LoginDao;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OnActivityResult;
 
@@ -25,6 +27,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = LoginActivity.class.getSimpleName();
     FirebaseAuth mAuth;
+    @Bean
+    LoginDao loginDao;
 
 
     @Override
@@ -35,7 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         if (mAuth.getCurrentUser() == null) {
             startSignIn();
         } else {
-            startMainActivity();
+            startMainActivity(new Intent());
         }
     }
 
@@ -75,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             Intent intent = new Intent();
             intent.putExtra("loginResponse", response);
-            MainActivity_.intent(this).extras(intent).start();
+            startMainActivity(intent);
             finish();
         } else {
             // Sign in failed
@@ -99,7 +103,9 @@ public class LoginActivity extends AppCompatActivity {
         Snackbar.make(this.getCurrentFocus(), errorMessageRes, Snackbar.LENGTH_LONG).show();
     }
 
-    private void startMainActivity() {
-        MainActivity_.intent(this).start();
+    private void startMainActivity(Intent extras) {
+        loginDao.init();
+        MainActivity_.intent(this).extras(extras).start();
     }
+
 }

@@ -1,21 +1,32 @@
 package com.app.sell;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.app.sell.dao.LoginDao;
 import com.app.sell.model.User;
 import com.app.sell.view.SquareImageView;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.AfterViews;
@@ -37,11 +48,12 @@ public class ChangePictureActivity extends AppCompatActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int GALLERY_REQUEST = 2;
     static final String TAG = ChangePictureActivity.class.getSimpleName();
+    private static final int MY_CAMERA_REQUEST_CODE = 100;
     String mCurrentPhotoPath;
     Uri mPhotoURI;
 
     @ViewById(R.id.change_picture_imageview)
-    SquareImageView mProfileImage;
+    SquareImageView mProfileImageView;
 
     @Bean
     LoginDao loginDao;
@@ -51,6 +63,24 @@ public class ChangePictureActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.change_picture_toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == MY_CAMERA_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -61,18 +91,22 @@ public class ChangePictureActivity extends AppCompatActivity {
 
     void bind() {
         User currentUser = loginDao.getCurrentUser();
-        Picasso.get().load(currentUser.getImage()).into(mProfileImage);
+        Picasso.get().load(currentUser.getImage()).into(mProfileImageView);
     }
 
     @Click(R.id.change_picture_from_gallery_button)
     void dispatchPickPictureIntent() {
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-        photoPickerIntent.setType("image/*");
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(photoPickerIntent, GALLERY_REQUEST);
     }
 
     @Click(R.id.change_picture_take_new_button)
     void dispatchTakePictureIntent(View view) {
+        if (Build.VERSION.SDK_INT >= 23 &&
+                ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -116,7 +150,8 @@ public class ChangePictureActivity extends AppCompatActivity {
         Log.d("handleTakePictureResponse:", String.valueOf(resultCode));
 
         if (resultCode == RESULT_OK) {
-            changeProfilePhoto(mPhotoURI, mProfileImage);
+            Picasso.get().load(mPhotoURI).into(mProfileImageView);
+            uploadProfileImageToFirebase(mPhotoURI, mProfileImageView);
         }
     }
 
@@ -124,7 +159,45 @@ public class ChangePictureActivity extends AppCompatActivity {
     void handleGetPictureFromGalleryResponse(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             Uri selectedImage = data.getData();
-            changeProfilePhoto(selectedImage, mProfileImage);
+            Picasso.get().load(selectedImage).into(mProfileImageView);
+
+            uploadProfileImageToFirebase(selectedImage, mProfileImageView);
+        }
+    }
+
+    private void uploadProfileImageToFirebase(Uri selectedImage, final ImageView profileImageView) {
+        //get reference
+        final String newUserImageName = "/" + loginDao.getCurrentUser().getUid() + ".jpg";
+        final StorageReference reference = FirebaseStorage.getInstance().getReference().child(getString(R.string.db_node_users) + newUserImageName);
+
+        //begin upload
+        try {
+            UploadTask uploadTask = reference.putFile(selectedImage);
+            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    // Continue with the task to get the download URL
+                    return reference.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        changeProfilePhoto(downloadUri, profileImageView);
+                        Toast.makeText(getApplicationContext(), R.string.image_uploaded_to_firebase, Toast.LENGTH_LONG).show();
+                    } else {
+                        // Handle failures
+                        Toast.makeText(getApplicationContext(), R.string.image_uploaded_to_firebase_fail, Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "uploadProfileImageToFirebase: ", e);
+            Toast.makeText(getApplicationContext(), R.string.image_uploaded_to_firebase_fail, Toast.LENGTH_LONG).show();
         }
     }
 
