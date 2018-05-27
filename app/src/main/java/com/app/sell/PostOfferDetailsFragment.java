@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,12 +27,14 @@ import java.util.ArrayList;
  * Use the {@link PostOfferDetailsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PostOfferDetailsFragment extends Fragment {
+public class PostOfferDetailsFragment extends Fragment implements IPostOfferFragment {
     public final static int REQ_CODE = 1;
     public final String[] possibleConditions = {"Other (see description)", "For Parts", "Used (normal wear)", "Open Box (never used)", "Reconditioned/Certified", "New (never used)"};
     private TextView mSelectedCategory;
     private SeekBar mSeekBar;
     private TextView mCondition;
+    private EditText mDescription;
+    String selectedCategoryName;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -72,6 +75,7 @@ public class PostOfferDetailsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        setRetainInstance(true);
     }
 
     @Override
@@ -88,8 +92,13 @@ public class PostOfferDetailsFragment extends Fragment {
             }
         });
 
+        if(mSelectedCategory.getText().toString().equalsIgnoreCase("Select Category") && selectedCategoryName!=null){
+            mSelectedCategory.setText(selectedCategoryName);
+        }
+
         mSeekBar = v.findViewById(R.id.seekBar);
         mCondition = v.findViewById(R.id.condition);
+        mDescription = v.findViewById(R.id.description);
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -112,7 +121,7 @@ public class PostOfferDetailsFragment extends Fragment {
     public void onActivityResult (int requestCode, int resultCode, Intent data) {
         if(requestCode == REQ_CODE) {
             if(resultCode == Activity.RESULT_OK) {
-                String selectedCategoryName = data.getExtras().getString("SELECTED_CATEGORY");
+                selectedCategoryName = data.getExtras().getString("SELECTED_CATEGORY");
                 if (selectedCategoryName != null) {
                     mSelectedCategory.setText(selectedCategoryName);
                 }
@@ -143,6 +152,19 @@ public class PostOfferDetailsFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public Boolean validationSuccess() {
+        if(mSelectedCategory.getText().toString().equalsIgnoreCase("") || mSelectedCategory.getText().toString().equalsIgnoreCase("Select Category")){
+            Toast.makeText(getContext(),"Please select a category",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(mDescription.getText().toString().equalsIgnoreCase("")){
+            Toast.makeText(getContext(),"Please enter a description",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -156,5 +178,17 @@ public class PostOfferDetailsFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public String getOfferDescription(){
+        return mDescription.getText().toString();
+    }
+
+    public String getOfferCondition(){
+        return mCondition.getText().toString();
+    }
+
+    public String getOfferCategory(){
+        return mSelectedCategory.getText().toString();
     }
 }

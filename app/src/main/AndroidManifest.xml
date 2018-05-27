@@ -34,7 +34,7 @@
         <activity android:name=".AskActivity" />
         <activity android:name=".MakeOfferActivity" />
         <activity
-            android:name=".PostOfferActivity"
+            android:name=".PostOfferActivity_"
             android:label="@string/title_activity_post_offer"
             android:theme="@style/AppTheme.NoActionBar" />
 

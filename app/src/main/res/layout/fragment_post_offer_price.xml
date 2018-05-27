@@ -31,7 +31,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <CheckBox
-        android:id="@+id/chkAndroid"
+        android:id="@+id/firmOnPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:checked="false"

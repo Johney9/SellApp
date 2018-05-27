@@ -1,5 +1,6 @@
 package com.app.sell;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -72,10 +73,12 @@ public class LocationActivity extends AppCompatActivity {
                 mQuestion.setText(R.string.selling_question);
             }
         }
-        lat = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[0]);
-        lng = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[1]);
-        city = loginDao.getCurrentUser().getLocation().split(",")[2];
-        country = loginDao.getCurrentUser().getLocation().split(",")[3];
+        if(loginDao.getCurrentUser().getLocation() != null) {
+            lat = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[0]);
+            lng = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[1]);
+            city = loginDao.getCurrentUser().getLocation().split(",")[2];
+            country = loginDao.getCurrentUser().getLocation().split(",")[3];
+        }
         startLocationUpdates();
     }
 
@@ -149,9 +152,15 @@ public class LocationActivity extends AppCompatActivity {
 
     @Click(R.id.location_save_location_button)
     void saveLocation() {
-
-        loginDao.getCurrentUser().setLocation(lat + "," + lng + "," + city + "," + country);
+        String location = lat + "," + lng + "," + city + "," + country;
+        loginDao.getCurrentUser().setLocation(location);
         loginDao.write(loginDao.getCurrentUser());
+
+        int resultCode = RESULT_OK;
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("SELECTED_LOCATION_FULL", location);
+        resultIntent.putExtra("SELECTED_LOCATION_DISPLAY", city + ", " + country);
+        setResult(resultCode, resultIntent);
         finish();
     }
 

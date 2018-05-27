@@ -349,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openPostOfferActivity(View view) {
-        Intent intent = new Intent(view.getContext(), PostOfferActivity.class);
+        Intent intent = new Intent(view.getContext(), PostOfferActivity_.class);
         startActivity(intent);
     }
 
