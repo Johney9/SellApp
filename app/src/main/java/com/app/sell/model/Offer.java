@@ -13,5 +13,6 @@ public class Offer {
     private String image;
     private String offererId;
     private Long timestamp;
+    private String categoryId;
 
 }
