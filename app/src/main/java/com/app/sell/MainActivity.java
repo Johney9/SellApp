@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.app.sell.adapter.OffersAdapter;
 import com.app.sell.dao.LoginDao;
+import com.app.sell.events.LoggedInEvent;
 import com.app.sell.helper.BottomNavigationViewHelper;
 import com.app.sell.model.Offer;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,6 +38,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -126,9 +128,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (ClassNotFoundException e) {
                 Log.e(TAG, "onResume: ", e);
             }
-        }
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            initFCM();
         }
     }
 
@@ -299,7 +298,8 @@ public class MainActivity extends AppCompatActivity {
         this.searchTermForQuery = searchTermForQuery;
     }
 
-    protected void initFCM() {
+    @Subscribe
+    protected void initFCM(LoggedInEvent loggedInEvent) {
         String token = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, "initFCM: token: " + token);
         sendRegistrationToServer(token);
@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         reference.child(getString(R.string.db_node_users))
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child(loginDao.getCurrentUser().getUid())
                 .child(getString(R.string.field_messaging_token))
                 .setValue(token).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override

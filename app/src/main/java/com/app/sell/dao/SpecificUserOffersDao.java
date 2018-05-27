@@ -4,8 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.app.sell.R;
+import com.app.sell.events.LoggedInEvent;
 import com.app.sell.events.OffersRetrievedEvent;
-import com.app.sell.events.UserRetrievedEvent;
 import com.app.sell.model.Offer;
 import com.app.sell.model.User;
 import com.google.firebase.database.DataSnapshot;
@@ -49,7 +49,7 @@ public class SpecificUserOffersDao {
                 if (user == null) {
                     Log.d(TAG, "No user found.");
                 } else {
-                    EventBus.getDefault().post(new UserRetrievedEvent(user));
+                    EventBus.getDefault().post(new LoggedInEvent(user));
                     Log.d(TAG, "current user loaded");
                 }
             }

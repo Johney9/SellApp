@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.app.sell.dao.LoginDao;
-import com.app.sell.events.UserRetrievedEvent;
+import com.app.sell.events.LoggedInEvent;
 import com.app.sell.model.User;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,7 +52,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void bind(UserRetrievedEvent userRetrievedEvent) {
+    public void bind(LoggedInEvent userRetrievedEvent) {
 
         if (!loginDao.isUserLoggedIn()) {
             loginDao.init();
@@ -116,7 +116,7 @@ public class AccountActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        bind(new UserRetrievedEvent(null));
+        bind(new LoggedInEvent(null));
     }
 
     @Override

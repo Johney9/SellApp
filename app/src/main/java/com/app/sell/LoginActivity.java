@@ -24,12 +24,11 @@ import java.util.List;
 @EActivity(R.layout.activity_login)
 public class LoginActivity extends AppCompatActivity {
 
-    private static final int RC_SIGN_IN = 9001;
+    private static final int RC_SIGN_IN = 9002;
     private static final String TAG = LoginActivity.class.getSimpleName();
     FirebaseAuth mAuth;
     @Bean
     LoginDao loginDao;
-
 
     @Override
     protected void onResume() {
@@ -77,6 +76,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Successfully signed in
         if (resultCode == RESULT_OK) {
+            loginDao.init();
             Intent intent = new Intent();
             intent.putExtra("loginResponse", response);
             startMainActivity(intent);

@@ -3,9 +3,8 @@ package com.app.sell.dao;
 import android.content.Context;
 import android.util.Log;
 
-import com.app.sell.LoginActivity_;
 import com.app.sell.R;
-import com.app.sell.events.UserRetrievedEvent;
+import com.app.sell.events.LoggedInEvent;
 import com.app.sell.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -15,7 +14,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.greenrobot.eventbus.EventBus;
@@ -31,16 +29,10 @@ public class LoginDao {
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private User currentUser;
 
-    @AfterInject
     public void init() {
         USERS_TAG = context.getString(R.string.db_node_users);
 
-        String uid;
-        try {
-            uid = getFirebaseUserOrPromptLogin(mAuth).getUid();
-        } catch (NullPointerException e) {
-            return;
-        }
+        String uid = mAuth.getCurrentUser().getUid();
         final DatabaseReference usersRef = db.getReference(USERS_TAG + "/" + uid);
         usersRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -49,7 +41,7 @@ public class LoginDao {
                 if (getCurrentUser() == null || getCurrentUser().getUid() == null) {
                     registerNewUser(mAuth);
                 }
-                EventBus.getDefault().postSticky(new UserRetrievedEvent(getCurrentUser()));
+                EventBus.getDefault().postSticky(new LoggedInEvent(getCurrentUser()));
                 Log.d(TAG, "current user loaded");
             }
 
@@ -66,15 +58,6 @@ public class LoginDao {
             setCurrentUser(new User(firebaseUser));
             writeCurrentUser();
         }
-    }
-
-    private FirebaseUser getFirebaseUserOrPromptLogin(FirebaseAuth auth) {
-        FirebaseUser user = auth.getCurrentUser();
-        if (user == null) {
-            LoginActivity_.intent(context).start();
-            user = auth.getCurrentUser();
-        }
-        return user;
     }
 
     public boolean isUserLoggedIn() {
@@ -98,8 +81,6 @@ public class LoginDao {
     }
 
     public User getCurrentUser() {
-        if (this.currentUser == null)
-            init();
         return this.currentUser;
     }
 
