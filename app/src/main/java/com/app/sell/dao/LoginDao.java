@@ -35,7 +35,12 @@ public class LoginDao {
     public void init() {
         USERS_TAG = context.getString(R.string.db_node_users);
 
-        String uid = getFirebaseUserOrPromptLogin(mAuth).getUid();
+        String uid;
+        try {
+            uid = getFirebaseUserOrPromptLogin(mAuth).getUid();
+        } catch (NullPointerException e) {
+            return;
+        }
         final DatabaseReference usersRef = db.getReference(USERS_TAG + "/" + uid);
         usersRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -44,7 +49,7 @@ public class LoginDao {
                 if (getCurrentUser() == null || getCurrentUser().getUid() == null) {
                     registerNewUser(mAuth);
                 }
-                EventBus.getDefault().post(new UserRetrievedEvent(getCurrentUser()));
+                EventBus.getDefault().postSticky(new UserRetrievedEvent(getCurrentUser()));
                 Log.d(TAG, "current user loaded");
             }
 
@@ -74,7 +79,7 @@ public class LoginDao {
 
     public boolean isUserLoggedIn() {
         boolean isLogged = false;
-        if(getCurrentUser() != null)
+        if (getCurrentUser() != null)
             isLogged = true;
         return isLogged;
     }
@@ -93,7 +98,9 @@ public class LoginDao {
     }
 
     public User getCurrentUser() {
-        return currentUser;
+        if (this.currentUser == null)
+            init();
+        return this.currentUser;
     }
 
     private void setCurrentUser(User currentUser) {

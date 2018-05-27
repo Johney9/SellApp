@@ -45,7 +45,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/app_bar_height"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/mv"
                         android:background="@color/colorPrimary"
                         app:riv_mutate_background="false"
                         app:riv_oval="true" />

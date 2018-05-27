@@ -1,57 +1,35 @@
 package com.app.sell.model;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 
-import java.util.List;
+import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
 
-import lombok.AllArgsConstructor;
+import java.util.Map;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Chatroom implements Parcelable {
+@Parcel
+public class Chatroom {
 
-    private String chatroomName;
-    private String chatroomId;
-    private String askerId;
-    private String offererId;
-    private String offerId;
-    private List<ChatMessage> chatroomMessages;
+    String id;
+    String chatroomName;
+    String askerId;
+    String offerId;
+    String offerImageUri;
+    Map<String, ChatMessage> chatroomMessages;
+    Map<String, Map<String, Integer>> users;
 
-    protected Chatroom(Parcel in) {
-        chatroomName = in.readString();
-        chatroomId = in.readString();
-        askerId = in.readString();
-        offererId = in.readString();
-        offerId = in.readString();
-    }
-
-    public static final Creator<Chatroom> CREATOR = new Creator<Chatroom>() {
-        @Override
-        public Chatroom createFromParcel(Parcel in) {
-            return new Chatroom(in);
-        }
-
-        @Override
-        public Chatroom[] newArray(int size) {
-            return new Chatroom[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(chatroomName);
-        dest.writeString(chatroomId);
-        dest.writeString(askerId);
-        dest.writeString(offererId);
-        dest.writeString(offerId);
+    @ParcelConstructor
+    public Chatroom(String id, String chatroomName, String askerId, String offerId, String offerImageUri, Map<String, ChatMessage> chatroomMessages, Map<String, Map<String, Integer>> users) {
+        this.id = id;
+        this.chatroomName = chatroomName;
+        this.askerId = askerId;
+        this.offerId = offerId;
+        this.offerImageUri = offerImageUri;
+        this.chatroomMessages = chatroomMessages;
+        this.users = users;
     }
 }

@@ -38,7 +38,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="user_name">"Milorad Vojnovic"</string>
+    <string name="user_name">"username"</string>
     <string name="user_rating">"Rating: "</string>
     <string name="offers">"Offers:"</string>
     <string name="title_activity_notifications">Notifications</string>
@@ -54,7 +54,7 @@
     <string name="selling_question">Where are you selling?</string>
     <string name="take_a_new_photo">Take a new photo</string>
     <string name="select_an_existing_photo">Select an existing photo</string>
-    <string name="field_messaging_token">messaging_token</string>
+    <string name="field_messaging_token">messagingToken</string>
     <string name="db_node_users">users</string>
     <string name="message_data_type">message_data_type</string>
     <string name="data_type_chat_message">type_chat_message</string>
@@ -62,14 +62,19 @@
     <string name="db_node_chatrooms">chatrooms</string>
     <string name="message_data_title">title</string>
     <string name="message_data_message">message</string>
-    <string name="message_data_chatroom_id">chatroom_id</string>
-    <string name="field_chatroom_id">chatroom_id</string>
+    <string name="message_data_chatroom_id">chatroomId</string>
+    <string name="field_chatroom_id">chatroomId</string>
     <string name="field_asker_id">asker_id</string>
     <string name="field_chatroom_name">chatroom_name</string>
-    <string name="field_owner_id">offerer_id</string>
+    <string name="field_offerer_id">offerer_id</string>
     <string name="field_offer_id">offer_id</string>
-    <string name="field_last_message_seen">last_message_seen</string>
-    <string name="field_chatroom_messages">total_message_number</string>
+    <string name="field_last_message_seen">lastMessageSeen</string>
+    <string name="field_chatroom_message_number">total_message_number</string>
     <string name="db_node_offers">offers</string>
     <string name="ask_activity_shared_pref">ASK_ACTIVITY</string>
+    <string name="db_node_notifications">notifications</string>
+    <string name="message_data_icon_uri">iconUri</string>
+    <string name="image_uploaded_to_firebase">Profile image successfully uploaded.</string>
+    <string name="image_uploaded_to_firebase_fail">Profile image upload failed.</string>
+    <string name="db_node_chatroom_messages">chatroomMessages</string>
 </resources>

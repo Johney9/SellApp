@@ -6,7 +6,43 @@ let _ = require("underscore");
 
 admin.initializeApp(functions.config().firebase);
 
-exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/chatroom_messages/{chatmessageId}')
+exports.storeNotification = functions.database.ref('/chatrooms/{chatroomId}/chatroomMessages/{chatMesasgeId}')
+.onWrite((snapshot, context) => {
+	console.log("Store notification: starting");
+
+	//get the message that was written
+	let message = snapshot.after.val().message;
+	let messageSenderId = snapshot.after.val().senderId;
+	console.log("message: ", message);
+	console.log("sender_id: ", messageSenderId);
+	let timestamp = snapshot.after.val().timestamp;
+	let messageSenderUsername = snapshot.after.val().senderUsername;
+	return snapshot.after.ref.parent.parent.on('value', (dataSnapshot) => {
+		let chatroomName = dataSnapshot.val().chatroomName;
+		let offerImageUri = dataSnapshot.val().offerImageUri;
+		console.log("Offer image: ", offerImageUri);
+		//get the chatroom id
+		let chatroomId = context.params.chatroomId;
+		console.log("chatroom_id: ", chatroomId);
+		users = dataSnapshot.val().users;
+		console.log("Users", _.keys(users));
+		_.forEach(_.keys(users), uid => {
+			let notification = {
+				"userId": uid,
+				"chatroomId": chatroomId,
+				"username": messageSenderUsername,
+				"title": chatroomName,
+				"description": message,
+				"timestamp": timestamp,
+				"iconUri": offerImageUri,
+			};
+			console.log("Storing notification: ", notification);
+			return admin.database().ref('notifications/' + uid + '/' + chatroomId).set(notification);
+		});
+	});
+});
+
+exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/chatroomMessages/{chatmessageId}')
 .onWrite((snap, context) => {
 
 	console.log("System: starting");
@@ -16,9 +52,9 @@ exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/c
 
 	//get the message that was written
 	let message = snap.after.val().message;
-	let messageUserId = snap.after.val().user_id;
+	let messageSenderId = snap.after.val().senderId;
 	console.log("message: ", message);
-	console.log("user_id: ", messageUserId);
+	console.log("sender_id: ", messageSenderId);
 
 	//get the chatroom id
 	let chatroomId = context.params.chatroomId;
@@ -30,22 +66,24 @@ exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/c
 
 		//get the number of users in the chatroom
 		let length = 0;
-		data.forEach((value) => {
+
+		_.each(data, ((value) => {
 			length++;
-		});
+		}));
 		console.log("data length: ", length);
 
 		//loop through each user currently in the chatroom
 		let tokens = [];
 		let i = 0;
-		data.forEach((user_id) => {
+		_.forEach(_.keys(data), ((user_id) => {
 			console.log("user_id: ", user_id);
 
 			//get the token and add it to the array
 			let reference = admin.database().ref("/users/" + user_id);
 			reference.once('value').then(snap => {
 				//get the token
-				let token = snap.child('messaging_token').val();
+				let token = snap.child('messagingToken').val();
+				let iconUri = snap.child('image').val();
 				console.log('token: ', token);
 				tokens.push(token);
 				i++;
@@ -53,7 +91,7 @@ exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/c
 				//also check to see if the user_id we're viewing is the user who posted the message
 				//if it is, then save that name so we can pre-pend it to the message
 				let messageUserName = "";
-				if(snap.child('user_id').val() === messageUserId){
+				if(snap.child('user_id').val() === messageSenderId){
 					messageUserName = snap.child('name').val();
 					console.log("message user name: " , messageUserName);
 					message = messageUserName + ": " + message;
@@ -62,16 +100,17 @@ exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/c
 				//Once the last user in the list has been added we can continue
 				if(i === length) {
 
-					console.log("Construction the notification message.");
+					console.log("Constructing the notification message.");
 					const payload = {
 						data: {
-							data_type: "type_chat_message",
+							message_data_type: "type_chat_message",
 							title: "Prodaj!",
 							message: message,
-							chatroom_id: chatroomId
+							chatroomId: chatroomId,
+							icon: iconUri
 						}
 					};
-
+					console.log("Constructed message: ", payload);
 
 					return admin.messaging().sendToDevice(tokens, payload)
 						.then((response) => {
@@ -83,14 +122,15 @@ exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/c
 						  .catch((error) => {
 							console.log("Error sending message:", error);
 						  });
+				} else {
+					throw new Error("Error adding users!");
 				}
-				throw new Error("Error getting tokens!");
 			})
 			.catch((error) => {
 				console.log(error);
 			});
-		});
-	throw new Error("Fail!");
+		}));
+	return -1;
 	});
 });
 
@@ -98,10 +138,11 @@ exports.autoAssignId = functions.database.ref("{parentNode}/{topId}")
 .onCreate((snap, context) => {
 	console.log("ID auto assignment starting");
 	let id = context.params.topId;
+	let node = context.params.parentNode;
 	console.log("ID being processed: ", id);
 	let childNode = snap.val();
 	console.log("Node being processed: ", childNode);
-	if(!_.has(childNode, "id") && snap.child !== null) {
+	if(!_.has(childNode, "id") && snap.child !== null && node !== 'notifications') {
 		childNode.id = id;
 		return snap.ref.set(childNode)
 			.then(() => {
@@ -111,5 +152,6 @@ exports.autoAssignId = functions.database.ref("{parentNode}/{topId}")
 			.catch((error) => {
 				console.log("ID auto assignment reject with error: ", error);
 			});
-	}	
+	}
+	return -1;	
 })

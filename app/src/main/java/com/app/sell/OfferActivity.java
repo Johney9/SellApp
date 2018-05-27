@@ -51,6 +51,12 @@ public class OfferActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_offer);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         Intent myIntent = getIntent();
         String id = myIntent.getStringExtra("offerId");
         databaseOffer = FirebaseDatabase.getInstance().getReference("offers").child(id);
@@ -100,11 +106,12 @@ public class OfferActivity extends AppCompatActivity {
 
             }
         });
-        setContentView(R.layout.activity_offer);
     }
 
     public void openAskActivity(View view) {
-        Intent intent = new Intent(view.getContext(), AskActivity.class);
+        Intent intent = new Intent(view.getContext(), AskActivity_.class);
+        intent.putExtra(view.getContext().getString(R.string.field_offerer_id), user.getUid());
+        intent.putExtra(view.getContext().getString(R.string.field_offer_id), offer.getId());
         startActivity(intent);
     }
 

@@ -43,7 +43,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:15.0.2'
 
     //firebase crashlytics
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.2'
+    //implementation 'com.crashlytics.sdk.android:crashlytics:2.9.2'
 
     //android annotations
     annotationProcessor 'org.androidannotations:androidannotations:4.4.0'
@@ -66,6 +66,13 @@ dependencies {
 
     //events
     implementation 'org.greenrobot:eventbus:3.1.1'
+
+    //parceler
+    implementation 'org.parceler:parceler-api:1.1.10'
+    annotationProcessor 'org.parceler:parceler:1.1.10'
+
+    //google guava
+    implementation 'com.google.guava:guava:25.1-android'
 
     //tests
     testImplementation 'junit:junit:4.12'

@@ -1,16 +1,35 @@
 package com.app.sell.model;
 
-import lombok.AllArgsConstructor;
+import android.support.annotation.NonNull;
+
+import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-public class ChatMessage {
-    private String message;
-    private String user_id;
-    private String timestamp;
-    private String profile_image;
-    private String name;
+@Parcel
+public class ChatMessage implements Comparable<ChatMessage> {
+
+    String id;
+    String senderId;
+    String senderUsername;
+    String message;
+    Long timestamp;
+
+    @ParcelConstructor
+    public ChatMessage(String id, String senderId, String senderUsername, String message, Long timestamp) {
+        this.id = id;
+        this.senderId = senderId;
+        this.senderUsername = senderUsername;
+        this.message = message;
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public int compareTo(@NonNull ChatMessage o) {
+        return timestamp.compareTo(o.getTimestamp());
+    }
 }
