@@ -38,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         if (mAuth.getCurrentUser() == null) {
             startSignIn();
         } else {
-            startMainActivity(new Intent());
+            startMainActivity();
         }
     }
 
@@ -76,10 +76,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Successfully signed in
         if (resultCode == RESULT_OK) {
-            loginDao.init();
-            Intent intent = new Intent();
-            intent.putExtra("loginResponse", response);
-            startMainActivity(intent);
+            startMainActivity();
             finish();
         } else {
             // Sign in failed
@@ -99,13 +96,12 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    private void startMainActivity() {
+        loginDao.init();
+        MainActivity_.intent(this).start();
+    }
+
     private void showSnackbar(@StringRes int errorMessageRes) {
         Snackbar.make(this.getCurrentFocus(), errorMessageRes, Snackbar.LENGTH_LONG).show();
     }
-
-    private void startMainActivity(Intent extras) {
-        loginDao.init();
-        MainActivity_.intent(this).extras(extras).start();
-    }
-
 }
