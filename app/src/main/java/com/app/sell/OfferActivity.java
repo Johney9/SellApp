@@ -57,8 +57,8 @@ public class OfferActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Intent myIntent = getIntent();
-        String id = myIntent.getStringExtra("offerId");
-        databaseOffer = FirebaseDatabase.getInstance().getReference("offers").child(id);
+        String id = myIntent.getStringExtra(getString(R.string.field_offer_id));
+        databaseOffer = FirebaseDatabase.getInstance().getReference(getString(R.string.db_node_offers)).child(id);
         databaseOffer.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -73,7 +73,7 @@ public class OfferActivity extends AppCompatActivity {
                 offerImage.setBadge(offerPrice);
 
                 //user binding
-                databaseUser = FirebaseDatabase.getInstance().getReference("users").child(offer.getOffererId());
+                databaseUser = FirebaseDatabase.getInstance().getReference(getString(R.string.db_node_users)).child(offer.getOffererId());
                 databaseUser.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {

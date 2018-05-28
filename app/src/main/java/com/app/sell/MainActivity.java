@@ -439,8 +439,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-    private enum Sort {
-        NEWEST_FIRST, CLOSEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
-    }
 }
