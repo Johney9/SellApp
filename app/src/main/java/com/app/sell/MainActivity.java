@@ -22,18 +22,24 @@ import android.widget.Toast;
 
 import com.app.sell.adapter.OffersAdapter;
 import com.app.sell.dao.LoginDao;
+import com.app.sell.events.LoggedInEvent;
 import com.app.sell.helper.BottomNavigationViewHelper;
 import com.app.sell.model.Offer;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +48,7 @@ import java.util.List;
 @EActivity
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private static int LOCATION_REQUEST = 1;
     private static int CATEGORY_REQUEST = 2;
     private static int POST_OFFER_REQUEST = 3;
@@ -56,9 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String[] sort = {"Newest first", "Price: Low to high", "Price: High to low"};
     private String[] distance = {"< 5 km", "< 10 km", "< 20 km", "< 50 km", "< 100 km", "Any"};
-    @ViewById(R.id.navigation)
-    BottomNavigationView navigation;
-    DatabaseReference databaseOffers;
+
     private List<Offer> offers;
     private String priceFromEdit;
     private String priceToEdit;
@@ -69,6 +74,12 @@ public class MainActivity extends AppCompatActivity {
     private DISTANCE currentDistance;
     private String currentCategoryId;
     private String currentCategoryName;
+
+    @ViewById(R.id.navigation)
+    BottomNavigationView navigation;
+    DatabaseReference databaseOffers;
+    @Extra
+    String forwardToActivity;
     @Bean
     LoginDao loginDao;
 
@@ -128,6 +139,22 @@ public class MainActivity extends AppCompatActivity {
         currentDistance = DISTANCE.ANY;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            LoginActivity_.intent(this).start();
+            finish();
+        } else if (forwardToActivity != null) {
+            try {
+                Intent intent = new Intent(this, Class.forName(forwardToActivity));
+                startActivity(intent);
+            } catch (ClassNotFoundException e) {
+                Log.e(TAG, "onResume: ", e);
+            }
+        }
+    }
+
     public void searchSort() {
         final GridView gridview = (GridView) findViewById(R.id.gridview);
         Query searchedOffers = databaseOffers;
@@ -161,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private boolean checkSearchTerm(Offer offer){
+    private boolean checkSearchTerm(Offer offer) {
         return searchTermForQuery.length() == 0 || offer.getTitle().contains(searchTermForQuery);
     }
 
@@ -292,11 +319,11 @@ public class MainActivity extends AppCompatActivity {
                                 String priceTo = priceToText.getText().toString().trim();
                                 boolean minPriceSet = true;
                                 boolean maxPriceSet = true;
-                                if(priceFrom.length() == 0){
+                                if (priceFrom.length() == 0) {
                                     priceFrom = "0";
                                     minPriceSet = false;
                                 }
-                                if(priceTo.length() == 0){
+                                if (priceTo.length() == 0) {
                                     priceTo = String.valueOf(Double.MAX_VALUE);
                                     maxPriceSet = false;
                                 }
@@ -310,8 +337,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 final EditText price = findViewById(R.id.price);
                                 String priceText = "Price: Any";
-                                if(minPriceSet && maxPriceSet){
-                                    priceText = "$" +  priceFrom + " - " + "$" + priceTo;
+                                if (minPriceSet && maxPriceSet) {
+                                    priceText = "$" + priceFrom + " - " + "$" + priceTo;
 //                                    offersByPrice = offersByPrice.orderByChild("price").startAt(fromPrice).endAt(toPrice);
                                     priceFromEdit = priceFrom;
                                     priceToEdit = priceTo;
@@ -320,12 +347,12 @@ public class MainActivity extends AppCompatActivity {
                                     priceFromEdit = priceFrom;
                                     priceToEdit = "";
 //                                    offersByPrice = offersByPrice.orderByChild("price").startAt(fromPrice);
-                                } else if(maxPriceSet) {
+                                } else if (maxPriceSet) {
                                     priceText = "To $" + priceTo;
                                     priceFromEdit = "";
                                     priceToEdit = priceTo;
 //                                    offersByPrice = offersByPrice.orderByChild("price").endAt(toPrice);
-                                } else{
+                                } else {
                                     priceFromEdit = "";
                                     priceToEdit = "";
                                 }
@@ -385,5 +412,31 @@ public class MainActivity extends AppCompatActivity {
 
     public void setSearchTermForQuery(String searchTermForQuery) {
         this.searchTermForQuery = searchTermForQuery;
+    }
+
+    @Subscribe
+    protected void initFCM(LoggedInEvent loggedInEvent) {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        Log.d(TAG, "initFCM: token: " + token);
+        sendRegistrationToServer(token);
+    }
+
+    private void sendRegistrationToServer(final String token) {
+        Log.d(TAG, "sendRegistrationToServer: sending token to the server: " + token);
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+
+        reference.child(getString(R.string.db_node_users))
+                .child(loginDao.getCurrentUser().getUid())
+                .child(getString(R.string.field_messaging_token))
+                .setValue(token).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                if (!token.contentEquals(loginDao.getCurrentUser().getMessagingToken())) {
+                    loginDao.getCurrentUser().setMessagingToken(token);
+                    loginDao.writeCurrentUser();
+                }
+            }
+        });
     }
 }

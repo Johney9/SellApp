@@ -1,29 +1,34 @@
 package com.app.sell;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.app.sell.dao.LoginDao;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OnActivityResult;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressLint("Registered")
 @EActivity(R.layout.activity_login)
 public class LoginActivity extends AppCompatActivity {
 
-    private static final int RC_SIGN_IN = 9001;
+    private static final int RC_SIGN_IN = 9002;
     private static final String TAG = LoginActivity.class.getSimpleName();
     FirebaseAuth mAuth;
+    @Bean
+    LoginDao loginDao;
 
     @Override
     protected void onResume() {
@@ -33,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
         if (mAuth.getCurrentUser() == null) {
             startSignIn();
         } else {
-            startHomeActivity();
+            startMainActivity();
         }
     }
 
@@ -67,13 +72,11 @@ public class LoginActivity extends AppCompatActivity {
     @OnActivityResult(RC_SIGN_IN)
     void handleSignInResponse(int resultCode, Intent data) {
         IdpResponse response = IdpResponse.fromResultIntent(data);
-        Log.d("handleSignInResponse:", response.toString());
+        Log.d("handleSignInResponse:", response != null ? response.toString() : null);
 
         // Successfully signed in
         if (resultCode == RESULT_OK) {
-            Intent intent = new Intent();
-            intent.putExtra("loginResponse", response);
-            MainActivity_.intent(this).extras(intent).start();
+            startMainActivity();
             finish();
         } else {
             // Sign in failed
@@ -93,11 +96,12 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void showSnackbar(@StringRes int errorMessageRes) {
-        Snackbar.make(this.getCurrentFocus(), errorMessageRes, Snackbar.LENGTH_LONG).show();
+    private void startMainActivity() {
+        loginDao.init();
+        MainActivity_.intent(this).start();
     }
 
-    private void startHomeActivity() {
-        MainActivity_.intent(this).start();
+    private void showSnackbar(@StringRes int errorMessageRes) {
+        Snackbar.make(this.getCurrentFocus(), errorMessageRes, Snackbar.LENGTH_LONG).show();
     }
 }

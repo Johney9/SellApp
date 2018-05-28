@@ -5,8 +5,6 @@ import com.app.sell.model.User;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class UserRetrievedEvent {
-
+public class LoggedInEvent {
     public final User user;
-
 }

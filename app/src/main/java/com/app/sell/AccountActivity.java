@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.app.sell.dao.LoginDao;
-import com.app.sell.events.UserRetrievedEvent;
+import com.app.sell.events.LoggedInEvent;
 import com.app.sell.model.User;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,6 +26,7 @@ import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.ViewsById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 
@@ -50,28 +51,10 @@ public class AccountActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void bind(LoggedInEvent userRetrievedEvent) {
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        bind(null);
-    }
-
-    @Override
-    protected void onStop() {
-        EventBus.getDefault().unregister(this);
-        super.onStop();
-    }
-
-    @Subscribe
-    public void bind(UserRetrievedEvent userRetrievedEvent) {
-
-        if ( !loginDao.isUserLoggedIn() ) {
+        if (!loginDao.isUserLoggedIn()) {
             loginDao.init();
             return;
         }
@@ -122,5 +105,23 @@ public class AccountActivity extends AppCompatActivity {
     public void openChangePictureActivity(View view) {
         Intent intent = new Intent(view.getContext(), ChangePictureActivity_.class);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bind(new LoggedInEvent(null));
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 }

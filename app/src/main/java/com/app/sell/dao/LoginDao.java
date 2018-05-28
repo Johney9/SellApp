@@ -3,8 +3,8 @@ package com.app.sell.dao;
 import android.content.Context;
 import android.util.Log;
 
-import com.app.sell.LoginActivity_;
-import com.app.sell.events.UserRetrievedEvent;
+import com.app.sell.R;
+import com.app.sell.events.LoggedInEvent;
 import com.app.sell.model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -14,7 +14,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.greenrobot.eventbus.EventBus;
@@ -22,32 +21,33 @@ import org.greenrobot.eventbus.EventBus;
 @EBean(scope = EBean.Scope.Singleton)
 public class LoginDao {
 
-    private static final String USERS_TAG = "users";
+    private static final String TAG = "LoginDao";
+    private static String USERS_TAG;
     @RootContext
     Context context;
     private FirebaseDatabase db = FirebaseDatabase.getInstance();
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private User currentUser;
 
-    @AfterInject
     public void init() {
+        USERS_TAG = context.getString(R.string.db_node_users);
 
-        String uid = getFirebaseUserOrPromptLogin(mAuth).getUid();
+        String uid = mAuth.getCurrentUser().getUid();
         final DatabaseReference usersRef = db.getReference(USERS_TAG + "/" + uid);
         usersRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 setCurrentUser(dataSnapshot.getValue(User.class));
-                if (getCurrentUser() == null) {
+                if (getCurrentUser() == null || getCurrentUser().getUid() == null) {
                     registerNewUser(mAuth);
                 }
-                EventBus.getDefault().post(new UserRetrievedEvent(getCurrentUser()));
-                Log.d("current user loaded", "current user loaded");
+                EventBus.getDefault().postSticky(new LoggedInEvent(getCurrentUser()));
+                Log.d(TAG, "current user loaded");
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d("users cancelled", "users cancelled");
+                Log.d(TAG, "users cancelled");
             }
         });
     }
@@ -60,18 +60,9 @@ public class LoginDao {
         }
     }
 
-    private FirebaseUser getFirebaseUserOrPromptLogin(FirebaseAuth auth) {
-        FirebaseUser user = auth.getCurrentUser();
-        if (user == null) {
-            LoginActivity_.intent(context).start();
-            user = auth.getCurrentUser();
-        }
-        return user;
-    }
-
     public boolean isUserLoggedIn() {
         boolean isLogged = false;
-        if(getCurrentUser() != null)
+        if (getCurrentUser() != null)
             isLogged = true;
         return isLogged;
     }
@@ -90,7 +81,7 @@ public class LoginDao {
     }
 
     public User getCurrentUser() {
-        return currentUser;
+        return this.currentUser;
     }
 
     private void setCurrentUser(User currentUser) {

@@ -2,8 +2,6 @@ package com.app.sell.model;
 
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.Objects;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,13 +19,17 @@ public class User {
     private String location;
     private String image;
     private String email;
+    private String messagingToken;
 
     public User(FirebaseUser firebaseUser) {
         this.setImage(String.valueOf(firebaseUser.getPhotoUrl()));
-        String[] splitUsername = firebaseUser.getDisplayName().split(" ");
+        String[] splitUsername;
+        if (firebaseUser.getDisplayName() != null) {
+            splitUsername = firebaseUser.getDisplayName().split(" ");
+            this.setFirstName(splitUsername[0]);
+            this.setLastName(splitUsername[splitUsername.length - 1]);
+        }
         this.setUsername(firebaseUser.getDisplayName());
-        this.setFirstName(splitUsername[0]);
-        this.setLastName(splitUsername[splitUsername.length - 1]);
         this.setEmail(firebaseUser.getEmail());
         this.setUid(firebaseUser.getUid());
     }

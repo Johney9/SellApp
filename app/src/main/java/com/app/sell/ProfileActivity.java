@@ -9,8 +9,8 @@ import android.widget.TextView;
 
 import com.app.sell.adapter.UserOffersAdapter;
 import com.app.sell.dao.SpecificUserOffersDao;
+import com.app.sell.events.LoggedInEvent;
 import com.app.sell.events.OffersRetrievedEvent;
-import com.app.sell.events.UserRetrievedEvent;
 import com.app.sell.model.Offer;
 import com.app.sell.model.User;
 import com.makeramen.roundedimageview.RoundedImageView;
@@ -65,17 +65,17 @@ public class ProfileActivity extends AppCompatActivity {
         mOffersGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                Offer offer = (Offer)mOffersGridView.getAdapter().getItem(position);
+                Offer offer = (Offer) mOffersGridView.getAdapter().getItem(position);
                 Intent intent = new Intent(v.getContext(), OfferActivity_.class);
-                intent.putExtra("offerId",offer.getId());
+                intent.putExtra(getString(R.string.field_offer_id), offer.getId());
                 startActivity(intent);
             }
         });
     }
 
     @Subscribe
-    public void bindUsers(UserRetrievedEvent userRetrievedEvent) {
-        User user = userRetrievedEvent.user;
+    public void bindUsers(LoggedInEvent loggedInEvent) {
+        User user = loggedInEvent.user;
         mProfileUsernameTextView.setText(user.getUsername());
         Picasso.get().load(user.getImage()).into(mProfileImage);
     }

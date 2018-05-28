@@ -197,7 +197,7 @@ public class MyOffersFragment extends Fragment {
                                         int position, long id) {
                     Toast.makeText(getActivity(), "" + position + "," + id,
                             Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(v.getContext(), OfferActivity.class);
+                    Intent intent = new Intent(v.getContext(), OfferActivity_.class);
                     startActivity(intent);
                 }
             });
