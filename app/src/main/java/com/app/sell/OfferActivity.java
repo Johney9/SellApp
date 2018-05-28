@@ -116,7 +116,9 @@ public class OfferActivity extends AppCompatActivity {
     }
 
     public void openMakeOfferActivity(View view) {
-        Intent intent = new Intent(view.getContext(), MakeOfferActivity.class);
+        Intent intent = new Intent(view.getContext(), MakeOfferActivity_.class);
+        intent.putExtra(view.getContext().getString(R.string.field_offerer_id), user.getUid());
+        intent.putExtra(view.getContext().getString(R.string.field_offer_id), offer.getId());
         startActivity(intent);
     }
 

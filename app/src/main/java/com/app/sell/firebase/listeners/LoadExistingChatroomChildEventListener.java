@@ -17,7 +17,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class LoadExistingChatroomChildEventListener implements ChildEventListener {
 
-    private static final String TAG = "ChatroomChilEventListen";
+    private static final String TAG = "ChatroomChildEventListen";
     private String userId;
     private String offererId;
 

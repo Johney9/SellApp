@@ -31,7 +31,7 @@
         <activity android:name=".LocationActivity_" />
         <activity android:name=".AskActivity_"
             android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".MakeOfferActivity" />
+        <activity android:name=".MakeOfferActivity_" />
         <activity
             android:name=".PostOfferActivity"
             android:label="@string/title_activity_post_offer"

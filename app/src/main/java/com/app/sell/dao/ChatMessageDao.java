@@ -114,12 +114,14 @@ public class ChatMessageDao {
         });
     }
 
-    public boolean sendChatroomMessage(String chatroomId, final String offerId, final String offererId, @NonNull final ChatMessage chatMessage) {
+    public boolean sendChatroomMessage(String chatroomId, final String offerId, final String offererId, @NonNull ChatMessage chatMessage) {
 
         DatabaseReference chatroomNodeReference = FirebaseDatabase.getInstance().getReference(context.getString(R.string.db_node_chatrooms));
         try {
             DatabaseReference concreteChatMessageReference = chatroomNodeReference.child(chatroomId).child(context.getString(R.string.db_node_chatroom_messages));
-            concreteChatMessageReference.push().setValue(chatMessage);
+            DatabaseReference pushedReference = concreteChatMessageReference.push();
+            chatMessage.setId(pushedReference.getKey());
+            pushedReference.setValue(chatMessage);
         } catch (NullPointerException e) {
             chatroomDao.createChatroom(chatMessage.getSenderId(), offererId, offerId);
             EventBus.getDefault().post(new ChatMessageQueuedEvent(chatMessage));

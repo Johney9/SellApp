@@ -77,4 +77,7 @@
     <string name="image_uploaded_to_firebase">Profile image successfully uploaded.</string>
     <string name="image_uploaded_to_firebase_fail">Profile image upload failed.</string>
     <string name="db_node_chatroom_messages">chatroomMessages</string>
+    <string name="offer_message">Hi, I would like to buy this for:</string>
+    <string name="default_currency">$</string>
+    <string name="offer_message_sent">Offer sent!</string>
 </resources>

@@ -32,6 +32,7 @@
                 android:text="$"/>
 
         <EditText
+            android:id="@+id/make_offer_price_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/white"
@@ -40,6 +41,7 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/make_offer_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Make offer"
