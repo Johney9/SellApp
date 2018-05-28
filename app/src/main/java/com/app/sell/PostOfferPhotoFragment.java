@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,11 +21,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.app.sell.provider.GenericFileProvider;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -39,7 +42,8 @@ import java.util.Date;
  * Use the {@link PostOfferPhotoFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PostOfferPhotoFragment extends Fragment {
+public class PostOfferPhotoFragment extends Fragment implements IPostOfferFragment{
+    private EditText mTitle;
     private Button takePictureButton;
     private ImageView imageView;
     private static final int REQUEST_TAKE_PHOTO = 1;
@@ -85,6 +89,7 @@ public class PostOfferPhotoFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        setRetainInstance(true);
     }
 
     @Override
@@ -92,8 +97,28 @@ public class PostOfferPhotoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_post_offer_photo, container, false);
+        mTitle = (EditText) v.findViewById(R.id.title);
         takePictureButton = (Button) v.findViewById(R.id.button_image);
         imageView = (ImageView) v.findViewById(R.id.imageview);
+
+        if(imageView.getDrawable() == null && imageUri!=null){
+            Uri selectedImage = imageUri;
+            getContext().getContentResolver().notifyChange(selectedImage, null);
+
+            ContentResolver cr = getContext().getContentResolver();
+            Bitmap bitmap;
+            try {
+                bitmap = android.provider.MediaStore.Images.Media
+                        .getBitmap(cr, selectedImage);
+
+                imageView.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                Toast.makeText(getContext(), "Failed to load image", Toast.LENGTH_SHORT)
+                        .show();
+                Log.e("Camera", e.toString());
+            }
+        }
+
 
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             takePictureButton.setEnabled(false);
@@ -206,5 +231,27 @@ public class PostOfferPhotoFragment extends Fragment {
                     }
                 }
         }
+    }
+
+    public Boolean validationSuccess(){
+        if(imageView.getDrawable() == null){
+            Toast.makeText(getContext(),"Please take a photo of an item",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if(mTitle.getText().toString().equalsIgnoreCase("")){
+            Toast.makeText(getContext(),"Please enter title",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
+    public String getOfferTitle(){
+        return mTitle.getText().toString();
+    }
+
+    public Uri getOfferPhotoUri(){
+        return imageUri;
     }
 }

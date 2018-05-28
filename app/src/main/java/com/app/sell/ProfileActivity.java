@@ -67,15 +67,15 @@ public class ProfileActivity extends AppCompatActivity {
                                     int position, long id) {
                 Offer offer = (Offer) mOffersGridView.getAdapter().getItem(position);
                 Intent intent = new Intent(v.getContext(), OfferActivity_.class);
-                intent.putExtra("offerId", offer.getId());
+                intent.putExtra(getString(R.string.field_offer_id), offer.getId());
                 startActivity(intent);
             }
         });
     }
 
     @Subscribe
-    public void bindUsers(LoggedInEvent userRetrievedEvent) {
-        User user = userRetrievedEvent.user;
+    public void bindUsers(LoggedInEvent loggedInEvent) {
+        User user = loggedInEvent.user;
         mProfileUsernameTextView.setText(user.getUsername());
         Picasso.get().load(user.getImage()).into(mProfileImage);
     }

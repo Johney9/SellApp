@@ -1,5 +1,6 @@
 package com.app.sell;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -48,6 +49,32 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private static int LOCATION_REQUEST = 1;
+    private static int CATEGORY_REQUEST = 2;
+    private static int POST_OFFER_REQUEST = 3;
+
+    private enum SORT {
+        NEWEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
+    }
+
+    private enum DISTANCE {
+        FIVE, TEN, TWENTY, FIFTY, HUNDRED, ANY
+    }
+
+    private String[] sort = {"Newest first", "Price: Low to high", "Price: High to low"};
+    private String[] distance = {"< 5 km", "< 10 km", "< 20 km", "< 50 km", "< 100 km", "Any"};
+
+    private List<Offer> offers;
+    private String priceFromEdit;
+    private String priceToEdit;
+    private String searchTermForQuery;
+    private double priceFromForQuery;
+    private double priceToForQuery;
+    private SORT currentSorting;
+    private DISTANCE currentDistance;
+    private String currentCategoryId;
+    private String currentCategoryName;
+
     @ViewById(R.id.navigation)
     BottomNavigationView navigation;
     DatabaseReference databaseOffers;
@@ -55,14 +82,7 @@ public class MainActivity extends AppCompatActivity {
     String forwardToActivity;
     @Bean
     LoginDao loginDao;
-    private String[] sort = {"Newest first", "Closest first", "Price: Low to high", "Price: High to low"};
-    private List<Offer> offers;
-    private String priceFromEdit;
-    private String priceToEdit;
-    private String searchTermForQuery;
-    private double priceFromForQuery;
-    private double priceToForQuery;
-    private Sort currentSorting;
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -78,10 +98,10 @@ public class MainActivity extends AppCompatActivity {
                     NotificationsActivity_.intent(getApplicationContext()).start();
                     return true;
                 case R.id.navigation_photo:
-                    openPostOfferActivity(findViewById(android.R.id.content));
+                    openPostOfferActivity();
                     return true;
                 case R.id.navigation_offers:
-                    transaction.replace(R.id.content, new MyOffersFragment()).commit();
+                    transaction.replace(R.id.content, new MyOffersFragment()).commitAllowingStateLoss();
                     return true;
                 case R.id.navigation_account:
                     AccountActivity_.intent(getApplicationContext()).start();
@@ -95,6 +115,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        currentCategoryId = "";
+        currentCategoryName = "Popular near me";
+        Toast.makeText(getApplicationContext(),"cat -> "  + currentCategoryId + ", " + currentCategoryName, Toast.LENGTH_LONG).show();
         startHomeScreen();
     }
 
@@ -112,7 +135,8 @@ public class MainActivity extends AppCompatActivity {
         searchTermForQuery = "";
         priceFromForQuery = 0;
         priceToForQuery = Double.MAX_VALUE;
-        currentSorting = Sort.NEWEST_FIRST;
+        currentSorting = SORT.NEWEST_FIRST;
+        currentDistance = DISTANCE.ANY;
     }
 
     @Override
@@ -134,9 +158,9 @@ public class MainActivity extends AppCompatActivity {
     public void searchSort() {
         final GridView gridview = (GridView) findViewById(R.id.gridview);
         Query searchedOffers = databaseOffers;
-        if (currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.PRICE_LOW_HIGH) {
+        if(currentSorting == SORT.PRICE_HIGH_LOW || currentSorting == SORT.PRICE_LOW_HIGH) {
             searchedOffers = searchedOffers.orderByChild("price");
-        } else if (currentSorting == Sort.NEWEST_FIRST) {
+        } else if (currentSorting == SORT.NEWEST_FIRST) {
             searchedOffers = searchedOffers.orderByChild("timestamp");
         }
         searchedOffers.addValueEventListener(new ValueEventListener() {
@@ -146,12 +170,12 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
                     Offer offer = offerSnapshot.getValue(Offer.class);
 //                    if(searchTermForQuery.length() == 0 || searchTermForQuery.length() != 0 && offer.getTitle().contains(searchTermForQuery)) {
-                    if (checkSearchTerm(offer) && checkPrice(offer)) {
+                    if(checkSearchTerm(offer) && checkPrice(offer) && checkDistance(offer) && checkCategory(offer)) {
                         offers.add(offer);
                     }
                 }
 
-                if (currentSorting == Sort.PRICE_HIGH_LOW || currentSorting == Sort.NEWEST_FIRST) {
+                if(currentSorting == SORT.PRICE_HIGH_LOW || currentSorting == SORT.NEWEST_FIRST) {
                     Collections.reverse(offers);
                 }
 
@@ -172,6 +196,51 @@ public class MainActivity extends AppCompatActivity {
         return offer.getPrice() >= priceFromForQuery && offer.getPrice() <= priceToForQuery;
     }
 
+    private boolean checkDistance(Offer offer) {
+        if(loginDao.getCurrentUser() == null || loginDao.getCurrentUser().getLocation() == null) {
+            return true;
+        }
+        double userLat = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[0]);
+        double userLng = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[1]);
+        double offerLat = Double.parseDouble(offer.getLocation().split(",")[0]);
+        double offerLng = Double.parseDouble(offer.getLocation().split(",")[1]);
+        boolean isGoodDistance;
+        double dis = distance(userLat, userLng, offerLat, offerLng);
+        switch (currentDistance) {
+            case FIVE:  isGoodDistance = dis <= 5;
+                break;
+            case TEN:  isGoodDistance = dis <= 10;
+                break;
+            case TWENTY:  isGoodDistance = dis <= 20;
+                break;
+            case FIFTY:  isGoodDistance = dis <= 50;
+                break;
+            case ANY:  isGoodDistance = true;
+                break;
+            default: isGoodDistance = true;
+                break;
+        }
+        return isGoodDistance;
+    }
+
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        double theta = lon1 - lon2;
+        double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515;
+        dist = dist * 1.609344;
+        return dist;
+    }
+
+    private double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+
+    private double rad2deg(double rad) {
+        return (rad * 180 / Math.PI);
+    }
+
     public void searchSort(View view) {
         final SearchView searchView = (SearchView) findViewById(R.id.search_view);
 
@@ -179,24 +248,53 @@ public class MainActivity extends AppCompatActivity {
         searchSort();
     }
 
+    private boolean checkCategory(Offer offer) {
+        if(currentCategoryId == null || currentCategoryName == null
+                || offer.getCategoryId() == null || currentCategoryName.equals("Popular near me")) {
+            return true;
+        }
+        return offer.getCategoryId().equals(currentCategoryId);
+    }
+
     public void openSortDialog(View view) {
         AlertDialog.Builder sortDialog = new AlertDialog.Builder(this);
-        //alt_bld.setIconURI(R.drawable.iconURI);
+        //alt_bld.setIcon(R.drawable.icon);
         sortDialog.setTitle("Select a sorting");
         sortDialog.setSingleChoiceItems(sort, currentSorting.ordinal(), new DialogInterface
                 .OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 Toast.makeText(getApplicationContext(),
-                        "Sort = " + sort[item], Toast.LENGTH_SHORT).show();
+                        "SORT = " + sort[item], Toast.LENGTH_SHORT).show();
                 TextView sortText = (TextView) findViewById(R.id.sort);
                 sortText.setText(sort[item]);
-                currentSorting = Sort.values()[item];
+                currentSorting = SORT.values()[item];
                 searchSort();
                 dialog.dismiss();
 
             }
         });
         AlertDialog alert = sortDialog.create();
+        alert.show();
+    }
+
+    public void openDistanceDialog(View view) {
+        AlertDialog.Builder distanceDialog = new AlertDialog.Builder(this);
+        //alt_bld.setIcon(R.drawable.icon);
+        distanceDialog.setTitle("Select a distance");
+        distanceDialog.setSingleChoiceItems(distance, currentDistance.ordinal(), new DialogInterface
+                .OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                Toast.makeText(getApplicationContext(),
+                        "DISTANCE = " + distance[item], Toast.LENGTH_SHORT).show();
+                TextView distanceText = (TextView) findViewById(R.id.distance);
+                currentDistance = DISTANCE.values()[item];
+                distanceText.setText("Distance: " + distance[item]);
+                searchSort();
+                dialog.dismiss();
+
+            }
+        });
+        AlertDialog alert = distanceDialog.create();
         alert.show();
     }
 
@@ -281,17 +379,35 @@ public class MainActivity extends AppCompatActivity {
 
     public void openCategoriesActivity(View view) {
         Intent intent = new Intent(view.getContext(), CategoriesActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, CATEGORY_REQUEST);
     }
 
     public void openLocationActivity(View view) {
         Intent intent = new Intent(view.getContext(), LocationActivity_.class);
-        startActivity(intent);
+        startActivityForResult(intent, LOCATION_REQUEST);
     }
 
-    public void openPostOfferActivity(View view) {
-        Intent intent = new Intent(view.getContext(), PostOfferActivity.class);
-        startActivity(intent);
+    @Override
+    public void onActivityResult(int arg1, int arg2, Intent data )
+    {
+        if(arg1 == LOCATION_REQUEST) {
+            searchSort();
+        } else if(arg1 == CATEGORY_REQUEST) {
+            if(arg2 == Activity.RESULT_OK){
+                currentCategoryId = data.getStringExtra("categoryId");
+                currentCategoryName = data.getStringExtra("categoryName");
+                searchSort();
+            }
+        } else if(arg1 == POST_OFFER_REQUEST){
+            if(arg2 == Activity.RESULT_OK && data.getBooleanExtra("IS_NEW_OFFER_CREATED", false)){
+                navigation.setSelectedItemId(R.id.navigation_offers);
+            }
+        }
+    }
+
+    public void openPostOfferActivity() {
+        Intent intent = new Intent(getApplicationContext(), PostOfferActivity_.class);
+        startActivityForResult(intent, POST_OFFER_REQUEST);
     }
 
     public void setSearchTermForQuery(String searchTermForQuery) {
