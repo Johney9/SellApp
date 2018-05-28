@@ -1,6 +1,7 @@
 package com.app.sell;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.StrictMode;
@@ -239,7 +240,7 @@ public class PostOfferActivity extends AppCompatActivity {
         newOffer.setId(offerId.toString());
         newOffer.setImage(imageUrl.toString());
         newOffer.setTitle(photoFragment.getOfferTitle());
-        //newOffer.setCategory(detailsFragment.getOfferCategory());
+        newOffer.setCategoryId(detailsFragment.getOfferCategoryId());
         newOffer.setCondition(detailsFragment.getOfferCondition());
         newOffer.setDescription(detailsFragment.getOfferDescription());
         newOffer.setPrice(priceFragment.getOfferPrice());
@@ -268,6 +269,13 @@ public class PostOfferActivity extends AppCompatActivity {
                             postOffer(offerId, imageUrl);
                             progressDialog.dismiss();
                             Toast.makeText(getApplicationContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+
+                            int resultCode = RESULT_OK;
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("IS_NEW_OFFER_CREATED", true);
+                            setResult(resultCode, resultIntent);
+                            finish();
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

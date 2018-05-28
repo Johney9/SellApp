@@ -7,42 +7,72 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import com.app.sell.adapter.CategoriesArrayAdapter;
+import com.app.sell.model.Category;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class SelectCategoryActivity extends AppCompatActivity {
-    //Ucitati iz firebase-a
-    String[] categories = {"Baby & kids", "Furniture", "Clothing & shoes", "Cars & trucks",
-            "Household", "Cell phones", "Electronics", "Jewelry & accessories", "Games & toys",
-            "Appliances", "Collectibles", "Antiques", "General", "Tools", "Beauty & health", "Boats & marine",
-            "Sports & outdoors", "Arts & crafts", "TVs", "Home & garden", "CDs & DVDs", "Books & magazines",
-            "Motorcycles", "Computer equipment", "Software", "Bicycles", "Video games", "Audio equipment",
-            "Video equipment", "Photography", "Auto parts", "Musical instruments", "Tickets", "Pet supplies",
-            "Business equipment", "Wedding", "Campers & RVs", "Free", "Exercise"};
+    Query databaseCategories;
+    private ArrayList<Category> categories;
+
     ListView lv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_category);
-        ArrayAdapter adapter = new ArrayAdapter<String>(this, R.layout.category_layout, categories);
+        ArrayAdapter adapter = new ArrayAdapter<Category>(this, R.layout.category_layout, categories);
 
         lv = (ListView) findViewById(R.id.listView);
-        lv.setAdapter(adapter);
+
+
+        databaseCategories = FirebaseDatabase.getInstance().getReference("categories");
+        categories = new ArrayList<>();
+
+        databaseCategories.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                categories.clear();
+                for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
+                    Category category = offerSnapshot.getValue(Category.class);
+                    categories.add(category);
+                }
+                lv.setAdapter(new CategoriesArrayAdapter(getApplicationContext(), categories));
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
-                String selected = (String) lv.getItemAtPosition(position).toString();
+                //Category category = (Category) lv.getAdapter().getItem(position);
+                Category category = (Category) lv.getItemAtPosition(position);
 
                 int resultCode = RESULT_OK;
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("SELECTED_CATEGORY", selected);
+                resultIntent.putExtra("SELECTED_CATEGORY_ID", category.getId());
+                resultIntent.putExtra("SELECTED_CATEGORY_NAME", category.getName());
                 setResult(resultCode, resultIntent);
                 finish();
             }
         });
+
     }
 
 }

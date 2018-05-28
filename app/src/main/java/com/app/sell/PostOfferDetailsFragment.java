@@ -35,6 +35,7 @@ public class PostOfferDetailsFragment extends Fragment implements IPostOfferFrag
     private TextView mCondition;
     private EditText mDescription;
     String selectedCategoryName;
+    String selectedCategoryId;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -121,7 +122,8 @@ public class PostOfferDetailsFragment extends Fragment implements IPostOfferFrag
     public void onActivityResult (int requestCode, int resultCode, Intent data) {
         if(requestCode == REQ_CODE) {
             if(resultCode == Activity.RESULT_OK) {
-                selectedCategoryName = data.getExtras().getString("SELECTED_CATEGORY");
+                selectedCategoryName = data.getExtras().getString("SELECTED_CATEGORY_NAME");
+                selectedCategoryId = data.getExtras().getString("SELECTED_CATEGORY_ID");
                 if (selectedCategoryName != null) {
                     mSelectedCategory.setText(selectedCategoryName);
                 }
@@ -188,7 +190,7 @@ public class PostOfferDetailsFragment extends Fragment implements IPostOfferFrag
         return mCondition.getText().toString();
     }
 
-    public String getOfferCategory(){
-        return mSelectedCategory.getText().toString();
+    public String getOfferCategoryId(){
+        return selectedCategoryId;
     }
 }
