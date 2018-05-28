@@ -7,6 +7,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -18,8 +21,9 @@ import android.widget.Toast;
  * Use the {@link PostOfferPriceFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PostOfferPriceFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
+public class PostOfferPriceFragment extends Fragment implements IPostOfferFragment{
+    private EditText mPrice;
+    private CheckBox mFirmOnPrice;
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -65,7 +69,11 @@ public class PostOfferPriceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_post_offer_price, container, false);
+        View v = inflater.inflate(R.layout.fragment_post_offer_price, container, false);
+        mPrice = v.findViewById(R.id.price);
+        mFirmOnPrice = v.findViewById(R.id.firmOnPrice);
+
+        return v;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -91,6 +99,15 @@ public class PostOfferPriceFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public Boolean validationSuccess() {
+        if(Double.parseDouble(mPrice.getText().toString()) <= 0){
+            Toast.makeText(getContext(),"Please enter a price",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -104,5 +121,13 @@ public class PostOfferPriceFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public Boolean getOfferFirmOnPrice(){
+        return mFirmOnPrice.isChecked();
+    }
+
+    public Double getOfferPrice(){
+        return Double.parseDouble(mPrice.getText().toString());
     }
 }

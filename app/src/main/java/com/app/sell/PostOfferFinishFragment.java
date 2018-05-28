@@ -1,5 +1,6 @@
 package com.app.sell;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -20,9 +21,11 @@ import android.widget.Toast;
  * Use the {@link PostOfferFinishFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PostOfferFinishFragment extends Fragment {
+public class PostOfferFinishFragment extends Fragment implements IPostOfferFragment{
     public final static int REQ_SELL_LOCATION = 1;
     private TextView mSelectedLocation;
+    private String fullLocation;
+    private String displayLocation;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -78,6 +81,9 @@ public class PostOfferFinishFragment extends Fragment {
                 startActivityForResult(intent, REQ_SELL_LOCATION);
             }
         });
+        if(mSelectedLocation.getText().toString().equalsIgnoreCase("Select Location") && displayLocation!=null){
+            mSelectedLocation.setText(displayLocation);
+        }
         return v;
     }
 
@@ -104,6 +110,16 @@ public class PostOfferFinishFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public Boolean validationSuccess() {
+        if(mSelectedLocation.getText().toString().equalsIgnoreCase("")){
+            Toast.makeText(getContext(), "Please select your location",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -117,5 +133,21 @@ public class PostOfferFinishFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public void onActivityResult (int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQ_SELL_LOCATION) {
+            if(resultCode == Activity.RESULT_OK) {
+                fullLocation= data.getExtras().getString("SELECTED_LOCATION_FULL");
+                displayLocation = data.getExtras().getString("SELECTED_LOCATION_DISPLAY");
+                if (displayLocation != null) {
+                    mSelectedLocation.setText(displayLocation);
+                }
+            }
+        }
+    }
+
+    public String getOfferLocation(){
+        return fullLocation;
     }
 }

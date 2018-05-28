@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static int LOCATION_REQUEST = 1;
     private static int CATEGORY_REQUEST = 2;
+    private static int POST_OFFER_REQUEST = 3;
 
     private enum SORT {
         NEWEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
@@ -86,10 +87,10 @@ public class MainActivity extends AppCompatActivity {
                     NotificationsActivity_.intent(getApplicationContext()).start();
                     return true;
                 case R.id.navigation_photo:
-                    openPostOfferActivity(findViewById(android.R.id.content));
+                    openPostOfferActivity();
                     return true;
                 case R.id.navigation_offers:
-                    transaction.replace(R.id.content, new MyOffersFragment()).commit();
+                    transaction.replace(R.id.content, new MyOffersFragment()).commitAllowingStateLoss();
                     return true;
                 case R.id.navigation_account:
                     AccountActivity_.intent(getApplicationContext()).start();
@@ -370,12 +371,16 @@ public class MainActivity extends AppCompatActivity {
                 currentCategoryName = data.getStringExtra("categoryName");
                 searchSort();
             }
+        } else if(arg1 == POST_OFFER_REQUEST){
+            if(arg2 == Activity.RESULT_OK && data.getBooleanExtra("IS_NEW_OFFER_CREATED", false)){
+                navigation.setSelectedItemId(R.id.navigation_offers);
+            }
         }
     }
 
-    public void openPostOfferActivity(View view) {
-        Intent intent = new Intent(view.getContext(), PostOfferActivity.class);
-        startActivity(intent);
+    public void openPostOfferActivity() {
+        Intent intent = new Intent(getApplicationContext(), PostOfferActivity_.class);
+        startActivityForResult(intent, POST_OFFER_REQUEST);
     }
 
     public void setSearchTermForQuery(String searchTermForQuery) {

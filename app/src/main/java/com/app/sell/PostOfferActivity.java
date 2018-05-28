@@ -1,7 +1,11 @@
 package com.app.sell;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.StrictMode;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,12 +19,34 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.anton46.stepsview.StepsView;
+import com.app.sell.dao.LoginDao;
+import com.app.sell.model.Offer;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EActivity;
+
+import java.util.UUID;
+
+@EActivity
 public class PostOfferActivity extends AppCompatActivity {
 
     String[] steps = {"Photo", "Details", "Price", "Finish"};
+
+    //Firebase
+    private DatabaseReference mDatabase;
+    FirebaseStorage storage;
+    StorageReference storageReference;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -31,6 +57,9 @@ public class PostOfferActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
+
+    @Bean
+    LoginDao loginDao;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -67,7 +96,16 @@ public class PostOfferActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                mViewPager.setCurrentItem(getItem(+1), true);
+                FragmentManager fm = getSupportFragmentManager();
+
+                IPostOfferFragment postOfferFragment = (IPostOfferFragment)fm.findFragmentByTag(getFragmentTag(mViewPager.getId(), mViewPager.getCurrentItem()));
+                if (postOfferFragment.validationSuccess()) {
+                    if (mViewPager.getCurrentItem() == 3) {
+                        uploadImageAndPostOffer();
+                    } else {
+                        mViewPager.setCurrentItem(getItem(+1), true);
+                    }
+                }
 
             }
         });
@@ -95,6 +133,10 @@ public class PostOfferActivity extends AppCompatActivity {
                 }
             }
         });
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
@@ -177,6 +219,86 @@ public class PostOfferActivity extends AppCompatActivity {
                 photoFragment.enableTakePictureButton();
             }
         }
+    }
+
+    public void uploadImageAndPostOffer(){
+        FragmentManager fm = getSupportFragmentManager();
+        PostOfferPhotoFragment photoFragment = (PostOfferPhotoFragment)fm.findFragmentByTag(getFragmentTag(mViewPager.getId(), 0));
+        UUID offerId = UUID.randomUUID();
+        uploadImage(photoFragment.getOfferPhotoUri(), offerId);
+    }
+
+    public void postOffer(UUID offerId, Uri imageUrl){
+        FragmentManager fm = getSupportFragmentManager();
+
+        PostOfferPhotoFragment photoFragment = (PostOfferPhotoFragment)fm.findFragmentByTag(getFragmentTag(mViewPager.getId(), 0));
+        PostOfferDetailsFragment detailsFragment = (PostOfferDetailsFragment)fm.findFragmentByTag(getFragmentTag(mViewPager.getId(), 1));
+        PostOfferPriceFragment priceFragment = (PostOfferPriceFragment)fm.findFragmentByTag(getFragmentTag(mViewPager.getId(), 2));
+        PostOfferFinishFragment finishFragment = (PostOfferFinishFragment)fm.findFragmentByTag(getFragmentTag(mViewPager.getId(), 3));
+
+        Offer newOffer = new Offer();
+        newOffer.setId(offerId.toString());
+        newOffer.setImage(imageUrl.toString());
+        newOffer.setTitle(photoFragment.getOfferTitle());
+        newOffer.setCategoryId(detailsFragment.getOfferCategoryId());
+        newOffer.setCondition(detailsFragment.getOfferCondition());
+        newOffer.setDescription(detailsFragment.getOfferDescription());
+        newOffer.setPrice(priceFragment.getOfferPrice());
+        newOffer.setFirmOnPrice(priceFragment.getOfferFirmOnPrice());
+        newOffer.setLocation(finishFragment.getOfferLocation());
+        newOffer.setOffererId(loginDao.getCurrentUser().getUid());
+        newOffer.setTimestamp(System.currentTimeMillis());
+
+        mDatabase.child("offers").child(offerId.toString()).setValue(newOffer);
+    }
+
+    private void uploadImage(Uri filePath, final UUID offerId) {
+
+        if(filePath != null)
+        {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+
+            StorageReference ref = storageReference.child("offers/"+ offerId.toString());
+            ref.putFile(filePath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Uri imageUrl = taskSnapshot.getDownloadUrl();
+                            postOffer(offerId, imageUrl);
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+
+                            int resultCode = RESULT_OK;
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("IS_NEW_OFFER_CREATED", true);
+                            setResult(resultCode, resultIntent);
+                            finish();
+
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                                    .getTotalByteCount());
+                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                        }
+                    });
+        }
+    }
+
+    private String getFragmentTag(int viewPagerId, int fragmentPosition)
+    {
+        return "android:switcher:" + viewPagerId + ":" + fragmentPosition;
     }
 
 
