@@ -11,10 +11,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class SelectCategoryActivity extends AppCompatActivity {
-    String[] categories = {"Antiques", "Appliances", "Arts & Crafts", "Audio Equipment", "Auto Parts",
-            "Baby & Kids", "Beauty & Health", "Bicycles", "Boats & Marine", "Books & Magazines",
-            "Business Equipment", "Campers and RVs", "Cars & Trucks", "CDs & DVDs", "Cell Phones", "Clothing & Shoes"};
+    //Ucitati iz firebase-a
+    String[] categories = {"Baby & kids", "Furniture", "Clothing & shoes", "Cars & trucks",
+            "Household", "Cell phones", "Electronics", "Jewelry & accessories", "Games & toys",
+            "Appliances", "Collectibles", "Antiques", "General", "Tools", "Beauty & health", "Boats & marine",
+            "Sports & outdoors", "Arts & crafts", "TVs", "Home & garden", "CDs & DVDs", "Books & magazines",
+            "Motorcycles", "Computer equipment", "Software", "Bicycles", "Video games", "Audio equipment",
+            "Video equipment", "Photography", "Auto parts", "Musical instruments", "Tickets", "Pet supplies",
+            "Business equipment", "Wedding", "Campers & RVs", "Free", "Exercise"};
     ListView lv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +34,7 @@ public class SelectCategoryActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position,
                                     long id) {
-                String selected =(String) lv.getItemAtPosition(position).toString();
+                String selected = (String) lv.getItemAtPosition(position).toString();
 
                 int resultCode = RESULT_OK;
                 Intent resultIntent = new Intent();

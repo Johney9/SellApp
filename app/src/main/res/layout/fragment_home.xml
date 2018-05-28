@@ -1,85 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".HomeFragment">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:context=".HomeFragment">
+        android:layout_height="wrap_content">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/app_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <SearchView
+            android:id="@+id/search_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:iconifiedByDefault="false"
+            android:onClick="searchSort"
+            android:paddingLeft="-16dp"
+            android:paddingStart="-16dp"
+            android:queryHint="Search"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="4dp" />
 
-            <SearchView
-                android:id="@+id/search_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:focusable="false"
-                android:iconifiedByDefault="false"
-                android:paddingLeft="-16dp"
-                android:paddingStart="-16dp"
-                android:queryHint="Search"
-                tools:layout_editor_absoluteX="16dp"
-                tools:layout_editor_absoluteY="4dp"
-                android:onClick="searchSort"/>
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="openCategoriesActivity"
+            android:src="@drawable/ic_view_comfy_black_24dp" />
 
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="openCategoriesActivity"
-                android:src="@drawable/ic_view_comfy_black_24dp" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="openLocationActivity"
+            android:src="@drawable/ic_location_on_black_24dp" />
 
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="openLocationActivity"
-                android:src="@drawable/ic_location_on_black_24dp" />
+    </android.support.v7.widget.Toolbar>
 
-        </android.support.v7.widget.Toolbar>
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/app_bar_sort_price"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/app_bar_sort_price"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/sort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:onClick="openSortDialog"
+            android:text="Newest first" />
 
-            <EditText
-                android:id="@+id/sort"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:focusable="false"
-                android:onClick="openSortDialog"
-                android:text="Newest first" />
+        <EditText
+            android:id="@+id/price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:onClick="openPriceDialog"
+            android:text="Price: Any" />
 
-            <EditText
-                android:id="@+id/price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:focusable="false"
-                android:onClick="openPriceDialog"
-                android:text="Price: Any" />
+        <EditText
+            android:id="@+id/distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:onClick="openDistanceDialog"
+            android:text="Distance: Any" />
 
-            <EditText
-                android:id="@+id/distance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:focusable="false"
-                android:onClick="openDistanceDialog"
-                android:text="Distance: Any" />
+    </android.support.v7.widget.Toolbar>
 
-
-        </android.support.v7.widget.Toolbar>
-
-        <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/gridview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:horizontalSpacing="0dp"
-            android:numColumns="3"
-            android:stretchMode="columnWidth"
-            android:verticalSpacing="0dp" />
-    </LinearLayout>
+    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/gridview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:horizontalSpacing="0dp"
+        android:numColumns="3"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="0dp" />
+</LinearLayout>

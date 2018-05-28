@@ -1,5 +1,6 @@
 package com.app.sell;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +42,9 @@ import java.util.List;
 @EActivity
 public class MainActivity extends AppCompatActivity {
 
+    private static int LOCATION_REQUEST = 1;
+    private static int CATEGORY_REQUEST = 2;
+
     private enum SORT {
         NEWEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
     }
@@ -61,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     private double priceToForQuery;
     private SORT currentSorting;
     private DISTANCE currentDistance;
+    private String currentCategoryId;
+    private String currentCategoryName;
     @Bean
     LoginDao loginDao;
 
@@ -96,7 +103,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        currentCategoryId = "";
+        currentCategoryName = "Popular near me";
+        Toast.makeText(getApplicationContext(),"cat -> "  + currentCategoryId + ", " + currentCategoryName, Toast.LENGTH_LONG).show();
         startHomeScreen();
     }
 
@@ -133,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
                     Offer offer = offerSnapshot.getValue(Offer.class);
 //                    if(searchTermForQuery.length() == 0 || searchTermForQuery.length() != 0 && offer.getTitle().contains(searchTermForQuery)) {
-                    if(checkSearchTerm(offer) && checkPrice(offer) && checkDistance(offer)) {
+                    if(checkSearchTerm(offer) && checkPrice(offer) && checkDistance(offer) && checkCategory(offer)) {
                         offers.add(offer);
                     }
                 }
@@ -160,6 +169,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkDistance(Offer offer) {
+        if(loginDao.getCurrentUser() == null || loginDao.getCurrentUser().getLocation() == null) {
+            return true;
+        }
         double userLat = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[0]);
         double userLng = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[1]);
         double offerLat = Double.parseDouble(offer.getLocation().split(",")[0]);
@@ -206,6 +218,14 @@ public class MainActivity extends AppCompatActivity {
 
         searchTermForQuery = searchView.getQuery().toString();
         searchSort();
+    }
+
+    private boolean checkCategory(Offer offer) {
+        if(currentCategoryId == null || currentCategoryName == null
+                || offer.getCategoryId() == null || currentCategoryName.equals("Popular near me")) {
+            return true;
+        }
+        return offer.getCategoryId().equals(currentCategoryId);
     }
 
     public void openSortDialog(View view) {
@@ -331,20 +351,25 @@ public class MainActivity extends AppCompatActivity {
 
     public void openCategoriesActivity(View view) {
         Intent intent = new Intent(view.getContext(), CategoriesActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, CATEGORY_REQUEST);
     }
 
     public void openLocationActivity(View view) {
         Intent intent = new Intent(view.getContext(), LocationActivity_.class);
-        startActivityForResult(intent, 1);
+        startActivityForResult(intent, LOCATION_REQUEST);
     }
 
     @Override
     public void onActivityResult(int arg1, int arg2, Intent data )
     {
-        if(arg1 == 1)
-        {
+        if(arg1 == LOCATION_REQUEST) {
             searchSort();
+        } else if(arg1 == CATEGORY_REQUEST) {
+            if(arg2 == Activity.RESULT_OK){
+                currentCategoryId = data.getStringExtra("categoryId");
+                currentCategoryName = data.getStringExtra("categoryName");
+                searchSort();
+            }
         }
     }
 
