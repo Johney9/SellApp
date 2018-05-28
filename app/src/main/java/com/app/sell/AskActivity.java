@@ -106,6 +106,7 @@ public class AskActivity extends AppCompatActivity {
             String userId = loginDao.getCurrentUser().getUid();
 
             userDao.loadUser(mOffererId);
+
             chatroomDao.loadChatroom(userId, mOffererId, mOfferId);
         }
     }
@@ -183,6 +184,26 @@ public class AskActivity extends AppCompatActivity {
         }
     }
 
+    public void sendIsStillAvailableMsg(View view) {
+        ChatMessage chatMessage = createChatMessageFromStringResource(R.string.still_available);
+        sendChatMessage(chatMessage);
+    }
+
+    public void sendToBuyMsg(View view) {
+        ChatMessage chatMessage = createChatMessageFromStringResource(R.string.like_to_buy);
+        sendChatMessage(chatMessage);
+    }
+
+    public void sendToMeetMsg(View view) {
+        ChatMessage chatMessage = createChatMessageFromStringResource(R.string.meet_today);
+        sendChatMessage(chatMessage);
+    }
+
+    @NonNull
+    private ChatMessage createChatMessageFromStringResource(int resourceLocation) {
+        return new ChatMessage(getString(resourceLocation), new Date().getTime(), ChatMessage.Type.SENT);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -206,25 +227,5 @@ public class AskActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(this);
 
         super.onStop();
-    }
-
-    public void sendIsStillAvailableMsg(View view) {
-        ChatMessage chatMessage = createChatMessageFromStringResource(R.string.still_available);
-        sendChatMessage(chatMessage);
-    }
-
-    public void sendToBuyMsg(View view) {
-        ChatMessage chatMessage = createChatMessageFromStringResource(R.string.like_to_buy);
-        sendChatMessage(chatMessage);
-    }
-
-    public void sendToMeetMsg(View view) {
-        ChatMessage chatMessage = createChatMessageFromStringResource(R.string.meet_today);
-        sendChatMessage(chatMessage);
-    }
-
-    @NonNull
-    private ChatMessage createChatMessageFromStringResource(int resourceLocation) {
-        return new ChatMessage(getString(resourceLocation), new Date().getTime(), ChatMessage.Type.SENT);
     }
 }
