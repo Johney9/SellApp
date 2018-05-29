@@ -32,12 +32,12 @@
             <!--android:layout_height="wrap_content"-->
             <!--android:hint="Enter location"/>-->
 
-        <!--<fragment-->
-            <!--android:id="@+id/place_autocomplete_fragment"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"-->
-            <!--/>-->
+        <fragment
+            android:id="@+id/place_autocomplete_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+            />
 
         <TextView
             android:id="@+id/location"
