@@ -82,24 +82,51 @@
             android:background="@android:color/darker_gray"
             android:layout_marginTop="10dp"/>
 
+        <TextView
+            android:id="@+id/offer_condition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:paddingLeft="20dp"
+            android:textSize="20dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/offer_fixed_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:paddingLeft="20dp"
+            android:textSize="20dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="10dp"/>
+
         <LinearLayout
             android:orientation="horizontal"
             android:paddingLeft="4.0dip"
             android:paddingTop="5.0dip"
             android:paddingRight="4.0dip"
             android:paddingBottom="1.0dip"
-            android:layout_width="fill_parent" android:layout_height="wrap_content"
-            android:layout_below="@+id/TextView01">
+            android:layout_width="fill_parent" android:layout_height="wrap_content">
 
             <Button
-                android:id="@+id/allow"
+                android:id="@+id/ask"
                 android:layout_width="0.0dip" android:layout_height="fill_parent"
                 android:text="Ask"
                 android:layout_weight="1.0"
                 android:onClick="openAskActivity"/>
 
             <Button
-                android:id="@+id/deny"
+                android:id="@+id/make_offer"
                 android:layout_width="0.0dip" android:layout_height="fill_parent"
                 android:text="Make an Offer"
                 android:layout_weight="1.0"

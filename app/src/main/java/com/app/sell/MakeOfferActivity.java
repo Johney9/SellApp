@@ -37,6 +37,8 @@ public class MakeOfferActivity extends AppCompatActivity {
     String offerId;
     String offererId;
     String mChatroomId;
+    Double offerPrice;
+    Boolean fixPrice;
     @Bean
     ChatroomDao chatroomDao;
     @Bean
@@ -54,6 +56,12 @@ public class MakeOfferActivity extends AppCompatActivity {
     void init() {
         offerId = getIntent().getStringExtra(getString(R.string.field_offer_id));
         offererId = getIntent().getStringExtra(getString(R.string.field_offerer_id));
+        offerPrice = getIntent().getDoubleExtra(getString(R.string.field_offer_price), 0);
+        fixPrice = getIntent().getBooleanExtra(getString(R.string.field_offer_fix_price), false);
+        priceEditText.setText(String.valueOf(offerPrice));
+        if(fixPrice) {
+            priceEditText.setEnabled(false);
+        }
         String senderId = loginDao.getCurrentUser().getUid();
         chatroomDao.loadChatroom(senderId, offererId, offerId);
     }

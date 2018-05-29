@@ -23,6 +23,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+import static com.google.android.gms.location.places.AutocompleteFilter.TYPE_FILTER_CITIES;
 
 @EActivity
 public class LocationActivity extends AppCompatActivity {
@@ -74,6 +76,11 @@ public class LocationActivity extends AppCompatActivity {
         mQuestion = findViewById(R.id.question);
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
+                .setTypeFilter(TYPE_FILTER_CITIES)
+                .build();
+
+        autocompleteFragment.setFilter(typeFilter);
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras != null && extras.getInt("requestCode") == PostOfferFinishFragment.REQ_SELL_LOCATION) {

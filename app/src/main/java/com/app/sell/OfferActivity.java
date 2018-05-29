@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.app.sell.dao.LoginDao;
+import com.app.sell.dao.UserDao;
 import com.app.sell.model.Offer;
 import com.app.sell.model.User;
 import com.bumptech.glide.Glide;
@@ -21,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.klinker.android.badged_imageview.BadgedImageView;
 import com.squareup.picasso.Picasso;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
@@ -43,9 +47,16 @@ public class OfferActivity extends AppCompatActivity {
     @ViewById(R.id.offer_image) BadgedImageView offerImage;
     @ViewById(R.id.offer_user_profile_image) CircleImageView offerUserImage;
     @ViewById(R.id.offer_user_name) TextView offerUserName;
+    @ViewById(R.id.ask) Button ask;
+    @ViewById(R.id.make_offer) Button makeOffer;
+    @ViewById(R.id.offer_condition) TextView offerCondition;
+    @ViewById(R.id.offer_fixed_price) TextView offerFixedPrice;
 
     private Offer offer;
     private User user;
+
+    @Bean
+    LoginDao loginDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,10 +78,19 @@ public class OfferActivity extends AppCompatActivity {
                 //offer binding
                 offerTitle.setText(offer.getTitle());
                 offerDescription.setText(offer.getDescription());
-                offerLocation.setText(offer.getLocation());
+                String city = offer.getLocation().split(",")[2];
+                String country = offer.getLocation().split(",")[3];
+                offerLocation.setText(city + ", " +  country);
                 Picasso.get().load(offer.getImage()).fit().into(offerImage);
                 String offerPrice = "$" + String.valueOf(offer.getPrice());
                 offerImage.setBadge(offerPrice);
+                offerCondition.setText("Condition: " + offer.getCondition());
+                offerFixedPrice.setText((offer.getFirmOnPrice()? "Fixed price!": "Dynamic price!"));
+
+                if(loginDao.getCurrentUser().getUid().equals(offer.getOffererId())) {
+                    ask.setVisibility(View.INVISIBLE);
+                    makeOffer.setVisibility(View.INVISIBLE);
+                }
 
                 //user binding
                 databaseUser = FirebaseDatabase.getInstance().getReference(getString(R.string.db_node_users)).child(offer.getOffererId());
@@ -107,6 +127,8 @@ public class OfferActivity extends AppCompatActivity {
         Intent intent = new Intent(view.getContext(), MakeOfferActivity_.class);
         intent.putExtra(view.getContext().getString(R.string.field_offerer_id), user.getUid());
         intent.putExtra(view.getContext().getString(R.string.field_offer_id), offer.getId());
+        intent.putExtra(view.getContext().getString(R.string.field_offer_price), offer.getPrice());
+        intent.putExtra(view.getContext().getString(R.string.field_offer_fix_price), offer.getFirmOnPrice());
         startActivity(intent);
     }
 

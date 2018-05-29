@@ -68,6 +68,8 @@
     <string name="field_chatroom_name">chatroom_name</string>
     <string name="field_offerer_id">offerer_id</string>
     <string name="field_offer_id">offer_id</string>
+    <string name="field_offer_price">offer_price</string>
+    <string name="field_offer_fix_price">true</string>
     <string name="field_last_message_seen">lastMessageSeen</string>
     <string name="field_chatroom_message_number">total_message_number</string>
     <string name="db_node_offers">offers</string>
