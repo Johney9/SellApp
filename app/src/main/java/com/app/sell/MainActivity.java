@@ -101,7 +101,12 @@ public class MainActivity extends AppCompatActivity {
                     openPostOfferActivity();
                     return true;
                 case R.id.navigation_offers:
-                    transaction.replace(R.id.content, new MyOffersFragment()).commitAllowingStateLoss();
+                    if(loginDao.getCurrentUser()!=null){
+                        transaction.replace(R.id.content, new MyOffersFragment().newInstance(loginDao.getCurrentUser().getUid())).commitAllowingStateLoss();
+                    }else{
+                        transaction.replace(R.id.content, new MyOffersFragment()).commitAllowingStateLoss();
+                    }
+
                     return true;
                 case R.id.navigation_account:
                     AccountActivity_.intent(getApplicationContext()).start();
