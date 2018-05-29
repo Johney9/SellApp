@@ -25,6 +25,7 @@ import com.app.sell.adapter.SellingOffersImageAdapter;
 import com.app.sell.dao.LoginDao;
 import com.app.sell.model.Chatroom;
 import com.app.sell.model.Offer;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -222,23 +223,40 @@ public class MyOffersFragment extends Fragment {
 
         private void loadSellingOffers(){
             final String currentUserUid = getArguments().getString(ARG_CURRENT_USER_UID);
-
-            databaseOffers = FirebaseDatabase.getInstance().getReference("offers").orderByChild("timestamp");
-
-            databaseOffers.addValueEventListener(new ValueEventListener() {
+            offers.clear();
+            databaseOffers = FirebaseDatabase.getInstance().getReference("offers").orderByChild("offererId").equalTo(currentUserUid);
+            databaseOffers.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    offers.clear();
-                    for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
-                        Offer offer = offerSnapshot.getValue(Offer.class);
-                            if(offer.getOffererId().equals(currentUserUid)){
-                                offers.add(offer);
-                            }
-
-                    }
-
-                    Collections.reverse(offers);
+                    //after all offers are loaded setting up adapter
                     gridview.setAdapter(new SellingOffersImageAdapter(getContext(), offers));
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            databaseOffers.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Offer offer = dataSnapshot.getValue(Offer.class);
+                    offers.add(offer);
+                }
+
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
                 }
 
                 @Override
@@ -250,19 +268,40 @@ public class MyOffersFragment extends Fragment {
 
         private void loadBuyingOffers(){
             final String currentUserUid = getArguments().getString(ARG_CURRENT_USER_UID);
+            offers.clear();
+            databaseChatrooms = FirebaseDatabase.getInstance().getReference("chatrooms").orderByChild("askerId").equalTo(currentUserUid);
+            databaseChatrooms.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    Chatroom chatroom = dataSnapshot.getValue(Chatroom.class);
+                    buyingOffersIds.add(chatroom.getOfferId());
+                }
 
-            databaseChatrooms = FirebaseDatabase.getInstance().getReference("chatrooms").orderByChild("timestamp");
-            databaseChatrooms.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                }
+
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            databaseChatrooms.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    buyingOffersIds.clear();
-                    for (DataSnapshot chatroomSnapshot: dataSnapshot.getChildren()) {
-                        Chatroom chatroom = chatroomSnapshot.getValue(Chatroom.class);
-                        if(chatroom.getAskerId().equalsIgnoreCase(currentUserUid)){
-                            buyingOffersIds.add(chatroom.getOfferId());
-                        }
-
-                    }
+                    //System.out.println("We're done loading the initial "+dataSnapshot.getChildrenCount()+" chatrooms");
 
                     databaseOffers = FirebaseDatabase.getInstance().getReference("offers").orderByChild("timestamp");
 
@@ -273,17 +312,17 @@ public class MyOffersFragment extends Fragment {
                             for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
                                 Offer offer = offerSnapshot.getValue(Offer.class);
 
-                                    boolean isBuyingOffer = false;
-                                    for(String buyingOfferId: buyingOffersIds){
-                                        if(buyingOfferId.equals(offer.getId())){
-                                            isBuyingOffer = true;
-                                            break;
-                                        }
+                                boolean isBuyingOffer = false;
+                                for(String buyingOfferId: buyingOffersIds){
+                                    if(buyingOfferId.equals(offer.getId())){
+                                        isBuyingOffer = true;
+                                        break;
                                     }
+                                }
 
-                                    if(isBuyingOffer){
-                                        offers.add(offer);
-                                    }
+                                if(isBuyingOffer){
+                                    offers.add(offer);
+                                }
                             }
 
                             Collections.reverse(offers);
