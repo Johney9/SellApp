@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.app.sell.R;
 import com.app.sell.events.NotificationsUpdatedEvent;
-import com.app.sell.firebase.listeners.NotificationsLoaderChildEventListener;
 import com.app.sell.model.NotificationItem;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,51 +39,6 @@ public class NotificationsDao {
     @Getter
     private Map<String, NotificationItem> notificationsMap = new HashMap<>();
 
-    //@AfterInject
-    void init() {
-        /*
-        database.getReference(context.getString(R.string.db_node_chatrooms)).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot concreteChatroomSnapshot :
-                        dataSnapshot.getChildren()) {
-                    Map<String, Object> users = concreteChatroomSnapshot.child("users").getValue(new GenericTypeIndicator<Map<String, Object>>(){});
-                    Log.d(TAG, "onDataChange: users: " + String.valueOf(users));
-                    if(users.containsKey(loginDao.getCurrentUser().getUid())) {
-                        try {
-                            Chatroom concreteChatroom = concreteChatroomSnapshot.getValue(Chatroom.class);
-                            ChatMessage lastMessage = Iterables.getLast(concreteChatroom.getChatroomMessages().values());
-                            long timestamp = lastMessage.getTimestamp();
-                            //get the datetime in a formatted way for the current locale
-                            String description = lastMessage.getSenderUsername() + ": " + lastMessage.getMessage();
-                            String title = concreteChatroom.getChatroomName();
-                            String chatroomId = concreteChatroomSnapshot.getKey();
-                            String iconUri = concreteChatroomSnapshot.child("offerImageUri").getValue(String.class);
-                            NotificationItem notification = new NotificationItem(title, description, iconUri, chatroomId, timestamp);
-                            Log.d(TAG, "onDataChange: notfication: " + notification);
-                            notificationsMap.put(chatroomId, notification);
-                        } catch (NoSuchElementException|NullPointerException e) {
-                            Log.e(TAG, "onDataChange: ", e);
-                        }
-                    }
-                }
-                publish();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //do nothing
-            }
-        });
-        */
-        notifications.clear();
-        String currentUserId = loginDao.getCurrentUser().getUid();
-
-        database.getReference(context.getString(R.string.db_node_chatrooms))
-                .orderByChild(context.getString(R.string.db_node_users) + "/" + currentUserId).limitToLast(30)
-                .addChildEventListener(new NotificationsLoaderChildEventListener(this, context));
-    }
 
     @AfterInject
     public void initialize() {
@@ -114,14 +68,4 @@ public class NotificationsDao {
         }
         EventBus.getDefault().postSticky(new NotificationsUpdatedEvent());
     }
-
-    /*
-    public void publish() {
-        if(notifications != null) {
-            Collections.sort(notifications);
-            Collections.reverse(notifications);
-            EventBus.getDefault().postSticky(new NotificationsUpdatedEvent());
-        }
-    }
-    */
 }
