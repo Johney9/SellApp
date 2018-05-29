@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         currentCategoryId = "";
         currentCategoryName = "Popular near me";
-        Toast.makeText(getApplicationContext(),"cat -> "  + currentCategoryId + ", " + currentCategoryName, Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "Category: " + currentCategoryId + ", " + currentCategoryName, Toast.LENGTH_LONG).show();
         startHomeScreen();
     }
 
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
     public void searchSort() {
         final GridView gridview = (GridView) findViewById(R.id.gridview);
         Query searchedOffers = databaseOffers;
-        if(currentSorting == SORT.PRICE_HIGH_LOW || currentSorting == SORT.PRICE_LOW_HIGH) {
+        if (currentSorting == SORT.PRICE_HIGH_LOW || currentSorting == SORT.PRICE_LOW_HIGH) {
             searchedOffers = searchedOffers.orderByChild("price");
         } else if (currentSorting == SORT.NEWEST_FIRST) {
             searchedOffers = searchedOffers.orderByChild("timestamp");
@@ -175,12 +175,12 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
                     Offer offer = offerSnapshot.getValue(Offer.class);
 //                    if(searchTermForQuery.length() == 0 || searchTermForQuery.length() != 0 && offer.getTitle().contains(searchTermForQuery)) {
-                    if(checkSearchTerm(offer) && checkPrice(offer) && checkDistance(offer) && checkCategory(offer)) {
+                    if (checkSearchTerm(offer) && checkPrice(offer) && checkDistance(offer) && checkCategory(offer)) {
                         offers.add(offer);
                     }
                 }
 
-                if(currentSorting == SORT.PRICE_HIGH_LOW || currentSorting == SORT.NEWEST_FIRST) {
+                if (currentSorting == SORT.PRICE_HIGH_LOW || currentSorting == SORT.NEWEST_FIRST) {
                     Collections.reverse(offers);
                 }
 
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkDistance(Offer offer) {
-        if(loginDao.getCurrentUser() == null || loginDao.getCurrentUser().getLocation() == null) {
+        if (loginDao.getCurrentUser() == null || loginDao.getCurrentUser().getLocation() == null || offer.getLocation() == null) {
             return true;
         }
         double userLat = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[0]);
@@ -212,17 +212,23 @@ public class MainActivity extends AppCompatActivity {
         boolean isGoodDistance;
         double dis = distance(userLat, userLng, offerLat, offerLng);
         switch (currentDistance) {
-            case FIVE:  isGoodDistance = dis <= 5;
+            case FIVE:
+                isGoodDistance = dis <= 5;
                 break;
-            case TEN:  isGoodDistance = dis <= 10;
+            case TEN:
+                isGoodDistance = dis <= 10;
                 break;
-            case TWENTY:  isGoodDistance = dis <= 20;
+            case TWENTY:
+                isGoodDistance = dis <= 20;
                 break;
-            case FIFTY:  isGoodDistance = dis <= 50;
+            case FIFTY:
+                isGoodDistance = dis <= 50;
                 break;
-            case ANY:  isGoodDistance = true;
+            case ANY:
+                isGoodDistance = true;
                 break;
-            default: isGoodDistance = true;
+            default:
+                isGoodDistance = true;
                 break;
         }
         return isGoodDistance;
@@ -254,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkCategory(Offer offer) {
-        if(currentCategoryId == null || currentCategoryName == null
+        if (currentCategoryId == null || currentCategoryName == null
                 || offer.getCategoryId() == null || currentCategoryName.equals("Popular near me")) {
             return true;
         }
@@ -393,18 +399,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onActivityResult(int arg1, int arg2, Intent data )
-    {
-        if(arg1 == LOCATION_REQUEST) {
+    public void onActivityResult(int arg1, int arg2, Intent data) {
+        if (arg1 == LOCATION_REQUEST) {
             searchSort();
-        } else if(arg1 == CATEGORY_REQUEST) {
-            if(arg2 == Activity.RESULT_OK){
+        } else if (arg1 == CATEGORY_REQUEST) {
+            if (arg2 == Activity.RESULT_OK) {
                 currentCategoryId = data.getStringExtra("categoryId");
                 currentCategoryName = data.getStringExtra("categoryName");
                 searchSort();
             }
-        } else if(arg1 == POST_OFFER_REQUEST){
-            if(arg2 == Activity.RESULT_OK && data.getBooleanExtra("IS_NEW_OFFER_CREATED", false)){
+        } else if (arg1 == POST_OFFER_REQUEST) {
+            if (arg2 == Activity.RESULT_OK && data.getBooleanExtra("IS_NEW_OFFER_CREATED", false)) {
                 navigation.setSelectedItemId(R.id.navigation_offers);
             }
         }

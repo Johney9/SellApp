@@ -10,17 +10,22 @@ import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.sell.dao.LoginDao;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
@@ -67,6 +72,8 @@ public class LocationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location);
         mQuestion = findViewById(R.id.question);
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras != null && extras.getInt("requestCode") == PostOfferFinishFragment.REQ_SELL_LOCATION) {
@@ -79,6 +86,21 @@ public class LocationActivity extends AppCompatActivity {
             city = loginDao.getCurrentUser().getLocation().split(",")[2];
             country = loginDao.getCurrentUser().getLocation().split(",")[3];
         }
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                lat = place.getLatLng().latitude;
+                lng = place.getLatLng().longitude;
+                city = place.getAddress().toString().split(",")[0];
+                country = place.getAddress().toString().split(",")[1];
+                location.setText(city + ", " + country);
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.e("Places error", "An error occurred: " + status);
+            }
+        });
         startLocationUpdates();
     }
 
@@ -153,7 +175,7 @@ public class LocationActivity extends AppCompatActivity {
     @Click(R.id.location_save_location_button)
     void saveLocation() {
         String location = lat + "," + lng + "," + city + "," + country;
-        loginDao.getCurrentUser().setLocation(location);
+        loginDao.getCurrentUser().setLocation(location.trim());
         loginDao.write(loginDao.getCurrentUser());
 
         int resultCode = RESULT_OK;
