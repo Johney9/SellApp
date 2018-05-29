@@ -105,8 +105,9 @@ public class HomeFragment extends Fragment {
                 }
 
                 Collections.reverse(offers);
-                gridview.setAdapter(new OffersAdapter(getContext(), offers));
-
+                if(getContext()!=null){
+                    gridview.setAdapter(new OffersAdapter(getContext(), offers));
+                }
             }
 
             @Override

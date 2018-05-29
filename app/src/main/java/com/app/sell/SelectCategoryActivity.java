@@ -45,7 +45,10 @@ public class SelectCategoryActivity extends AppCompatActivity {
                 categories.clear();
                 for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
                     Category category = offerSnapshot.getValue(Category.class);
-                    categories.add(category);
+                    if(!category.getName().equalsIgnoreCase("Popular near me")){
+                        categories.add(category);
+                    }
+
                 }
                 lv.setAdapter(new CategoriesArrayAdapter(getApplicationContext(), categories));
 

@@ -20,6 +20,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.sell.adapter.BuyingOffersImageAdapter;
+import com.app.sell.adapter.OffersAdapter;
+import com.app.sell.adapter.SellingOffersImageAdapter;
+import com.app.sell.dao.LoginDao;
+import com.app.sell.model.Offer;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.EApplication;
+import org.androidannotations.annotations.EFragment;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 /**
@@ -47,15 +64,11 @@ public class MyOffersFragment extends Fragment {
      */
     private ViewPager mViewPager;
 
-
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_CURRENT_USER_UID = "param1";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String currentUserUid;
 
     private OnFragmentInteractionListener mListener;
 
@@ -63,20 +76,10 @@ public class MyOffersFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MyOffersFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MyOffersFragment newInstance(String param1, String param2) {
+    public static MyOffersFragment newInstance(String currentUserUid) {
         MyOffersFragment fragment = new MyOffersFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_CURRENT_USER_UID, currentUserUid);
         fragment.setArguments(args);
         return fragment;
     }
@@ -85,8 +88,7 @@ public class MyOffersFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            currentUserUid = getArguments().getString(ARG_CURRENT_USER_UID);
         }
     }
 
@@ -97,7 +99,7 @@ public class MyOffersFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_my_offers, container, false);
         // Create the adapter that will return a fragment for each of the two
         // primary sections of the activity.
-        mSectionsPagerAdapter = new MyOffersFragment.SectionsPagerAdapter(getChildFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager(), currentUserUid);
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) v.findViewById(R.id.container);
@@ -108,14 +110,6 @@ public class MyOffersFragment extends Fragment {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        FloatingActionButton fab = (FloatingActionButton) v.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         return v;
     }
 
@@ -165,20 +159,27 @@ public class MyOffersFragment extends Fragment {
          * The fragment argument representing the section number for this
          * fragment.
          */
+        private List<Offer> offers;
+
+        Query databaseOffers;
         private static final String ARG_SECTION_NUMBER = "section_number";
+        private static final String ARG_CURRENT_USER_UID = "current_user_uid";
 
         public PlaceholderFragment() {
+            offers = new ArrayList<>();
         }
 
         /**
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
+        public static PlaceholderFragment newInstance(int sectionNumber, String currentUserUid) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            args.putString(ARG_CURRENT_USER_UID, currentUserUid);
             fragment.setArguments(args);
+
             return fragment;
         }
 
@@ -186,18 +187,50 @@ public class MyOffersFragment extends Fragment {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_my_offers_tab, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
 
-            GridView gridview = (GridView) rootView.findViewById(R.id.gridviewOffers);
-            gridview.setAdapter(new BuyingOffersImageAdapter(getActivity()));
+            final GridView gridview = (GridView) rootView.findViewById(R.id.gridviewOffers);
+
+            final String currentUserUid = getArguments().getString(ARG_CURRENT_USER_UID);
+            final int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
+
+
+            databaseOffers = FirebaseDatabase.getInstance().getReference("offers").orderByChild("timestamp");
+
+            databaseOffers.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    offers.clear();
+                    for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
+                        Offer offer = offerSnapshot.getValue(Offer.class);
+                        if (sectionNumber == 1) {
+                            if(offer.getOffererId().equals(currentUserUid)){
+                                offers.add(offer);
+                            }
+                        }else{
+
+                        }
+                    }
+
+                    Collections.reverse(offers);
+                    if (sectionNumber == 1) {
+                        gridview.setAdapter(new SellingOffersImageAdapter(getContext(), offers));
+                    }else{
+                        gridview.setAdapter(new BuyingOffersImageAdapter(getContext(), offers));
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
 
             gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v,
                                         int position, long id) {
-                    Toast.makeText(getActivity(), "" + position + "," + id,
-                            Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(v.getContext(), OfferActivity.class);
+                    Offer offer = (Offer)gridview.getAdapter().getItem(position);
+                    Intent intent = new Intent(v.getContext(), OfferActivity_.class);
+                    intent.putExtra("offerId",offer.getId());
                     startActivity(intent);
                 }
             });
@@ -211,21 +244,24 @@ public class MyOffersFragment extends Fragment {
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        String currentUserUid;
+
+        public SectionsPagerAdapter(FragmentManager fm, String currentUserUid) {
             super(fm);
+            this.currentUserUid = currentUserUid;
         }
 
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            return PlaceholderFragment.newInstance(position + 1, currentUserUid);
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
+            return 2;
         }
     }
 }
