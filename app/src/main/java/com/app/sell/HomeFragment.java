@@ -121,7 +121,7 @@ public class HomeFragment extends Fragment {
                                     int position, long id) {
                 Offer offer = (Offer)gridview.getAdapter().getItem(position);
                 Intent intent = new Intent(v.getContext(), OfferActivity_.class);
-                intent.putExtra("offerId",offer.getId());
+                intent.putExtra(getString(R.string.field_offer_id),offer.getId());
                 startActivity(intent);
             }
         });

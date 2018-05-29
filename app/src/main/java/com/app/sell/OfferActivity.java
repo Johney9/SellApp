@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.klinker.android.badged_imageview.BadgedImageView;
+import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
@@ -28,58 +29,51 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 @EActivity
 public class OfferActivity extends AppCompatActivity {
 
     DatabaseReference databaseOffer;
     DatabaseReference databaseUser;
-    @ViewById(R.id.offer_title)
-    TextView offerTitle;
-    @ViewById(R.id.offer_description)
-    TextView offerDescription;
-    @ViewById(R.id.offer_location)
-    TextView offerLocation;
-    @ViewById(R.id.offer_image)
-    BadgedImageView offerImage;
-    @ViewById(R.id.offer_user_image)
-    ImageView offerUserImage;
-    @ViewById(R.id.offer_user_name)
-    TextView offerUserName;
+
+    @ViewById(R.id.offer_title) TextView offerTitle;
+    @ViewById(R.id.offer_description) TextView offerDescription;
+    @ViewById(R.id.offer_location) TextView offerLocation;
+    @ViewById(R.id.offer_image) BadgedImageView offerImage;
+    @ViewById(R.id.offer_user_profile_image) CircleImageView offerUserImage;
+    @ViewById(R.id.offer_user_name) TextView offerUserName;
+
     private Offer offer;
     private User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_offer);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         Intent myIntent = getIntent();
-        String id = myIntent.getStringExtra("offerId");
-        databaseOffer = FirebaseDatabase.getInstance().getReference("offers").child(id);
+        String id = myIntent.getStringExtra(getString(R.string.field_offer_id));
+        databaseOffer = FirebaseDatabase.getInstance().getReference(getString(R.string.db_node_offers)).child(id);
         databaseOffer.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 offer = dataSnapshot.getValue(Offer.class);
 
+                //offer binding
                 offerTitle.setText(offer.getTitle());
                 offerDescription.setText(offer.getDescription());
                 offerLocation.setText(offer.getLocation());
-                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                        .permitAll().build();
-                StrictMode.setThreadPolicy(policy);
-                URL url = null;
-                try {
-                    url = new URL(offer.getImage());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                }
-                Bitmap bmp = null;
-                try {
-                    bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                offerImage.setImageBitmap(bmp);
-                offerImage.setBadge(offer.getPrice().toString());
-                databaseUser = FirebaseDatabase.getInstance().getReference("users").child(offer.getOffererId());
+                Picasso.get().load(offer.getImage()).fit().into(offerImage);
+                String offerPrice = "$" + String.valueOf(offer.getPrice());
+                offerImage.setBadge(offerPrice);
+
+                //user binding
+                databaseUser = FirebaseDatabase.getInstance().getReference(getString(R.string.db_node_users)).child(offer.getOffererId());
                 databaseUser.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -100,16 +94,19 @@ public class OfferActivity extends AppCompatActivity {
 
             }
         });
-        setContentView(R.layout.activity_offer);
     }
 
     public void openAskActivity(View view) {
-        Intent intent = new Intent(view.getContext(), AskActivity.class);
+        Intent intent = new Intent(view.getContext(), AskActivity_.class);
+        intent.putExtra(view.getContext().getString(R.string.field_offerer_id), user.getUid());
+        intent.putExtra(view.getContext().getString(R.string.field_offer_id), offer.getId());
         startActivity(intent);
     }
 
     public void openMakeOfferActivity(View view) {
-        Intent intent = new Intent(view.getContext(), MakeOfferActivity.class);
+        Intent intent = new Intent(view.getContext(), MakeOfferActivity_.class);
+        intent.putExtra(view.getContext().getString(R.string.field_offerer_id), user.getUid());
+        intent.putExtra(view.getContext().getString(R.string.field_offer_id), offer.getId());
         startActivity(intent);
     }
 
