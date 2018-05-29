@@ -12,15 +12,14 @@ import com.app.sell.R;
 import com.app.sell.model.Offer;
 import com.bumptech.glide.Glide;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class BuyingOffersImageAdapter extends BaseAdapter {
+public class SellingOffersImageAdapter extends BaseAdapter {
     private final List<Offer> offers;
     private final LayoutInflater mInflater;
     private final Context context;
 
-    public BuyingOffersImageAdapter(Context context, List<Offer> offers) {
+    public SellingOffersImageAdapter(Context context, List<Offer> offers) {
         mInflater = LayoutInflater.from(context);
         this.context = context;
         this.offers = offers;
