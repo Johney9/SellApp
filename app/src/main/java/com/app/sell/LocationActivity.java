@@ -92,6 +92,7 @@ public class LocationActivity extends AppCompatActivity {
             lng = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[1]);
             city = loginDao.getCurrentUser().getLocation().split(",")[2];
             country = loginDao.getCurrentUser().getLocation().split(",")[3];
+            location.setText(city + ", " + country);
         }
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
@@ -182,8 +183,6 @@ public class LocationActivity extends AppCompatActivity {
     @Click(R.id.location_save_location_button)
     void saveLocation() {
         String location = lat + "," + lng + "," + city + "," + country;
-        loginDao.getCurrentUser().setLocation(location.trim());
-        loginDao.write(loginDao.getCurrentUser());
 
         int resultCode = RESULT_OK;
         Intent resultIntent = new Intent();

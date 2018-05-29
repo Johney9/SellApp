@@ -400,7 +400,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onActivityResult(int arg1, int arg2, Intent data) {
-        if (arg1 == LOCATION_REQUEST) {
+        if (arg1 == LOCATION_REQUEST && arg2 == Activity.RESULT_OK) {
+            String location = data.getStringExtra("SELECTED_LOCATION_FULL");
+            loginDao.getCurrentUser().setLocation(location.trim());
+            loginDao.write(loginDao.getCurrentUser());
             searchSort();
         } else if (arg1 == CATEGORY_REQUEST) {
             if (arg2 == Activity.RESULT_OK) {
