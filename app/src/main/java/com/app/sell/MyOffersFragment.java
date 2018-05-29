@@ -23,6 +23,7 @@ import com.app.sell.adapter.BuyingOffersImageAdapter;
 import com.app.sell.adapter.OffersAdapter;
 import com.app.sell.adapter.SellingOffersImageAdapter;
 import com.app.sell.dao.LoginDao;
+import com.app.sell.model.Chatroom;
 import com.app.sell.model.Offer;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -161,12 +162,17 @@ public class MyOffersFragment extends Fragment {
          */
         private List<Offer> offers;
 
+        GridView gridview;
+
         Query databaseOffers;
+        Query databaseChatrooms;
+        List<String> buyingOffersIds;
         private static final String ARG_SECTION_NUMBER = "section_number";
         private static final String ARG_CURRENT_USER_UID = "current_user_uid";
 
         public PlaceholderFragment() {
             offers = new ArrayList<>();
+            buyingOffersIds = new ArrayList<>();
         }
 
         /**
@@ -188,42 +194,7 @@ public class MyOffersFragment extends Fragment {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_my_offers_tab, container, false);
 
-            final GridView gridview = (GridView) rootView.findViewById(R.id.gridviewOffers);
-
-            final String currentUserUid = getArguments().getString(ARG_CURRENT_USER_UID);
-            final int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-
-
-            databaseOffers = FirebaseDatabase.getInstance().getReference("offers").orderByChild("timestamp");
-
-            databaseOffers.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    offers.clear();
-                    for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
-                        Offer offer = offerSnapshot.getValue(Offer.class);
-                        if (sectionNumber == 1) {
-                            if(offer.getOffererId().equals(currentUserUid)){
-                                offers.add(offer);
-                            }
-                        }else{
-
-                        }
-                    }
-
-                    Collections.reverse(offers);
-                    if (sectionNumber == 1) {
-                        gridview.setAdapter(new SellingOffersImageAdapter(getContext(), offers));
-                    }else{
-                        gridview.setAdapter(new BuyingOffersImageAdapter(getContext(), offers));
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
+            gridview = (GridView) rootView.findViewById(R.id.gridviewOffers);
 
             gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View v,
@@ -235,6 +206,102 @@ public class MyOffersFragment extends Fragment {
                 }
             });
             return rootView;
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            final int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
+
+            if(sectionNumber==1){
+                loadSellingOffers();
+            }else if(sectionNumber==2){
+                loadBuyingOffers();
+            }
+        }
+
+        private void loadSellingOffers(){
+            final String currentUserUid = getArguments().getString(ARG_CURRENT_USER_UID);
+
+            databaseOffers = FirebaseDatabase.getInstance().getReference("offers").orderByChild("timestamp");
+
+            databaseOffers.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    offers.clear();
+                    for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
+                        Offer offer = offerSnapshot.getValue(Offer.class);
+                            if(offer.getOffererId().equals(currentUserUid)){
+                                offers.add(offer);
+                            }
+
+                    }
+
+                    Collections.reverse(offers);
+                    gridview.setAdapter(new SellingOffersImageAdapter(getContext(), offers));
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+
+        private void loadBuyingOffers(){
+            final String currentUserUid = getArguments().getString(ARG_CURRENT_USER_UID);
+
+            databaseChatrooms = FirebaseDatabase.getInstance().getReference("chatrooms").orderByChild("timestamp");
+            databaseChatrooms.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    buyingOffersIds.clear();
+                    for (DataSnapshot chatroomSnapshot: dataSnapshot.getChildren()) {
+                        Chatroom chatroom = chatroomSnapshot.getValue(Chatroom.class);
+                        if(chatroom.getAskerId().equalsIgnoreCase(currentUserUid)){
+                            buyingOffersIds.add(chatroom.getOfferId());
+                        }
+
+                    }
+
+                    databaseOffers = FirebaseDatabase.getInstance().getReference("offers").orderByChild("timestamp");
+
+                    databaseOffers.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            offers.clear();
+                            for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
+                                Offer offer = offerSnapshot.getValue(Offer.class);
+
+                                    boolean isBuyingOffer = false;
+                                    for(String buyingOfferId: buyingOffersIds){
+                                        if(buyingOfferId.equals(offer.getId())){
+                                            isBuyingOffer = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if(isBuyingOffer){
+                                        offers.add(offer);
+                                    }
+                            }
+
+                            Collections.reverse(offers);
+                            gridview.setAdapter(new BuyingOffersImageAdapter(getContext(), offers));
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
         }
     }
 
