@@ -73,7 +73,7 @@ public class MessageNotificationService extends AbstractIntentService {
 
     private void buildAndSendNotification(Builder notificationBuilder, int notificationId) {
 
-        if(Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.createNotificationChannel(new NotificationChannel(CHANNEL_NAME, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
             notificationBuilder.setChannelId(CHANNEL_NAME);
         }
@@ -84,9 +84,9 @@ public class MessageNotificationService extends AbstractIntentService {
         return createNotificationBuilderBase(title, resourceId).setContentText(text);
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("")
     private Builder createNotificationBuilderBase(String title, int resourceId) {
-        return new Builder(this)
+        return new Builder(this, CHANNEL_NAME)
                 .setSmallIcon(resourceId)
                 .setContentTitle(title)
                 .setPriority(Notification.PRIORITY_HIGH)

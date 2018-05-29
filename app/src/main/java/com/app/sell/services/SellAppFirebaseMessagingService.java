@@ -6,14 +6,11 @@ import android.util.Log;
 
 import com.app.sell.R;
 import com.app.sell.dao.ChatMessageDao;
-import com.app.sell.events.ChatNotificationEvent;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Map;
 
@@ -45,12 +42,12 @@ public class SellAppFirebaseMessagingService extends FirebaseMessagingService {
         String identifyDataType = notificationData.get(getString(R.string.message_data_type));
         String iconUri = notificationData.get(getString(R.string.message_data_icon_uri));
 
-        if(identifyDataType.contains(getString(R.string.data_type_chat_message)) && !isChatActivityRunning()) {
+        if (identifyDataType.contains(getString(R.string.data_type_chat_message)) && !isChatActivityRunning()) {
 
             String chatroomId = notificationData.get(getString(R.string.message_data_chatroom_id));
             chatMessageDao.processChatMessageForNotification(title, message, chatroomId, iconUri);
 
-        } else if(identifyDataType.contains(getString(R.string.data_type_offer_message))) {
+        } else if (identifyDataType.contains(getString(R.string.data_type_offer_message))) {
 
             String offerId = notificationData.get(getString(R.string.field_offer_id));
             buildAndSendOfferNotification(title, message, offerId);
@@ -68,25 +65,9 @@ public class SellAppFirebaseMessagingService extends FirebaseMessagingService {
         MessageNotificationService_.intent(this).handleOfferMessage(title, message, offerId, R.mipmap.ic_launcher).start();
     }
 
-    @Subscribe
-    public void buildAndSendChatNotification(ChatNotificationEvent chatRecievedEvent) {
-        MessageNotificationService_.intent(this).handleChatMessage(chatRecievedEvent.title, chatRecievedEvent.message, chatRecievedEvent.chatroom, chatRecievedEvent.newMessageNumber, R.mipmap.ic_launcher).start();
-    }
-
     @Override
     public void onDeletedMessages() {
         super.onDeletedMessages();
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
-    }
 }

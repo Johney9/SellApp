@@ -9,6 +9,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
+import java.util.Objects;
+
 public class SellAppFirebaseInstanceIdService extends FirebaseInstanceIdService {
     private static final String TAG = "SellAppFirebaseInstance";
 
@@ -26,9 +28,13 @@ public class SellAppFirebaseInstanceIdService extends FirebaseInstanceIdService 
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
-        reference.child(getString(R.string.db_node_users))
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .child(getString(R.string.field_messaging_token))
-                .setValue(token);
+        try {
+            reference.child(getString(R.string.db_node_users))
+                    .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                    .child(getString(R.string.field_messaging_token))
+                    .setValue(token);
+        } catch (NullPointerException e) {
+            Log.d(TAG, "sendRegistrationToServer: authorization not yet complete.");
+        }
     }
 }

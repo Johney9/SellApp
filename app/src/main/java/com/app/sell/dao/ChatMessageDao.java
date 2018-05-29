@@ -6,9 +6,9 @@ import android.util.Log;
 import com.app.sell.R;
 import com.app.sell.events.ChatMessageQueuedEvent;
 import com.app.sell.events.ChatMessagesUpdatedEvent;
-import com.app.sell.events.ChatNotificationEvent;
 import com.app.sell.model.ChatMessage;
 import com.app.sell.model.Chatroom;
+import com.app.sell.services.MessageNotificationService_;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -74,7 +74,7 @@ public class ChatMessageDao {
 
 
     public void processChatMessageForNotification(final String title, final String message, final String chatroomId, final String iconUri) {
-        Log.d(TAG, "handleChatMessage: " + chatroomId);
+        Log.d(TAG, "processChatMessageForNotification: " + String.format("message: %s, chatroom: %s", message, chatroomId));
 
         Query query = FirebaseDatabase.getInstance().getReference().child(context.getString(R.string.db_node_chatrooms))
                 .orderByKey()
@@ -85,7 +85,7 @@ public class ChatMessageDao {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 DataSnapshot snapshot = dataSnapshot.getChildren().iterator().next();
                 Chatroom chatroom = snapshot.getValue(Chatroom.class);
-                Log.d(TAG, "onDataChange: chatroom: " + chatroom);
+                Log.d(TAG, "onDataChange: chatroom: " + chatroom.getId());
 
                 int numMessagesSeen;
                 try {
@@ -104,7 +104,9 @@ public class ChatMessageDao {
                 newMessageNumber -= numMessagesSeen;
                 Log.d(TAG, "onDataChange: num pending messages: " + newMessageNumber);
 
-                EventBus.getDefault().post(new ChatNotificationEvent(title, message, iconUri, chatroom, newMessageNumber));
+                //EventBus.getDefault().post(new ChatNotificationEvent(title, message, iconUri, chatroom, newMessageNumber));
+                MessageNotificationService_.intent(context).handleChatMessage(title, message, chatroom, newMessageNumber, R.mipmap.ic_launcher).start();
+
             }
 
             @Override
@@ -122,6 +124,7 @@ public class ChatMessageDao {
             DatabaseReference pushedReference = concreteChatMessageReference.push();
             chatMessage.setId(pushedReference.getKey());
             pushedReference.setValue(chatMessage);
+            Log.d(TAG, "sendChatroomMessage: message sent: " + chatMessage);
         } catch (NullPointerException e) {
             chatroomDao.createChatroom(chatMessage.getSenderId(), offererId, offerId);
             EventBus.getDefault().post(new ChatMessageQueuedEvent(chatMessage));

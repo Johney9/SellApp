@@ -106,7 +106,7 @@ public class AskActivity extends AppCompatActivity {
             String userId = loginDao.getCurrentUser().getUid();
 
             userDao.loadUser(mOffererId);
-
+            offerDao.loadOffer(mOfferId);
             chatroomDao.loadChatroom(userId, mOffererId, mOfferId);
         }
     }

@@ -39,6 +39,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
@@ -52,18 +53,15 @@ public class MainActivity extends AppCompatActivity {
     private static int LOCATION_REQUEST = 1;
     private static int CATEGORY_REQUEST = 2;
     private static int POST_OFFER_REQUEST = 3;
-
-    private enum SORT {
-        NEWEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
-    }
-
-    private enum DISTANCE {
-        FIVE, TEN, TWENTY, FIFTY, HUNDRED, ANY
-    }
-
+    @ViewById(R.id.navigation)
+    BottomNavigationView navigation;
+    DatabaseReference databaseOffers;
+    @Extra
+    String forwardToActivity;
+    @Bean
+    LoginDao loginDao;
     private String[] sort = {"Newest first", "Price: Low to high", "Price: High to low"};
     private String[] distance = {"< 5 km", "< 10 km", "< 20 km", "< 50 km", "< 100 km", "Any"};
-
     private List<Offer> offers;
     private String priceFromEdit;
     private String priceToEdit;
@@ -74,15 +72,6 @@ public class MainActivity extends AppCompatActivity {
     private DISTANCE currentDistance;
     private String currentCategoryId;
     private String currentCategoryName;
-
-    @ViewById(R.id.navigation)
-    BottomNavigationView navigation;
-    DatabaseReference databaseOffers;
-    @Extra
-    String forwardToActivity;
-    @Bean
-    LoginDao loginDao;
-
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -101,9 +90,9 @@ public class MainActivity extends AppCompatActivity {
                     openPostOfferActivity();
                     return true;
                 case R.id.navigation_offers:
-                    if(loginDao.getCurrentUser()!=null){
+                    if (loginDao.getCurrentUser() != null) {
                         transaction.replace(R.id.content, new MyOffersFragment().newInstance(loginDao.getCurrentUser().getUid())).commitAllowingStateLoss();
-                    }else{
+                    } else {
                         transaction.replace(R.id.content, new MyOffersFragment()).commitAllowingStateLoss();
                     }
 
@@ -150,14 +139,17 @@ public class MainActivity extends AppCompatActivity {
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             LoginActivity_.intent(this).start();
             finish();
-        } else if (forwardToActivity != null) {
-            try {
-                Intent intent = new Intent(this, Class.forName(forwardToActivity));
-                startActivity(intent);
-            } catch (ClassNotFoundException e) {
-                Log.e(TAG, "onResume: ", e);
+        } else {
+            if (forwardToActivity != null) {
+                try {
+                    Intent intent = new Intent(this, Class.forName(forwardToActivity));
+                    startActivity(intent);
+                } catch (ClassNotFoundException e) {
+                    Log.e(TAG, "onResume: ", e);
+                }
             }
         }
+
     }
 
     public void searchSort() {
@@ -428,7 +420,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    protected void initFCM(LoggedInEvent loggedInEvent) {
+    public void initFCM(LoggedInEvent loggedInEvent) {
         String token = FirebaseInstanceId.getInstance().getToken();
         Log.d(TAG, "initFCM: token: " + token);
         sendRegistrationToServer(token);
@@ -451,5 +443,25 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    private enum SORT {
+        NEWEST_FIRST, PRICE_LOW_HIGH, PRICE_HIGH_LOW
+    }
+
+    private enum DISTANCE {
+        FIVE, TEN, TWENTY, FIFTY, HUNDRED, ANY
     }
 }
