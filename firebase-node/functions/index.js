@@ -85,7 +85,9 @@ exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/c
 				let token = snap.child('messagingToken').val();
 				let iconUri = snap.child('image').val();
 				console.log('token: ', token);
-				tokens.push(token);
+				if(user_id !== messageSenderId) {
+					tokens.push(token);
+				}
 				i++;
 
 				//also check to see if the user_id we're viewing is the user who posted the message
@@ -112,16 +114,17 @@ exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/c
 					};
 					console.log("Constructed message: ", payload);
 
+
 					return admin.messaging().sendToDevice(tokens, payload)
-						.then((response) => {
-							// See the MessagingDevicesResponse reference documentation for
-							// the contents of response.
-							console.log("Successfully sent message:", response);
-							return response;
-						  })
-						  .catch((error) => {
-							console.log("Error sending message:", error);
-						  });
+					.then((response) => {
+						// See the MessagingDevicesResponse reference documentation for
+						// the contents of response.
+						console.log("Successfully sent message:", response);
+						return response;
+						})
+						.catch((error) => {
+						console.log("Error sending message:", error);
+						});
 				} else {
 					throw new Error("Error adding users!");
 				}
