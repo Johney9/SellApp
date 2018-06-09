@@ -111,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         currentCategoryId = "";
         currentCategoryName = "Popular near me";
-        Toast.makeText(getApplicationContext(), "Category: " + currentCategoryId + ", " + currentCategoryName, Toast.LENGTH_LONG).show();
         startHomeScreen();
     }
 
@@ -186,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkSearchTerm(Offer offer) {
-        return searchTermForQuery.length() == 0 || offer.getTitle().contains(searchTermForQuery);
+        return searchTermForQuery.length() == 0 || offer.getTitle().toLowerCase().contains(searchTermForQuery.toLowerCase());
     }
 
     private boolean checkPrice(Offer offer) {
@@ -266,8 +265,6 @@ public class MainActivity extends AppCompatActivity {
         sortDialog.setSingleChoiceItems(sort, currentSorting.ordinal(), new DialogInterface
                 .OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                Toast.makeText(getApplicationContext(),
-                        "SORT = " + sort[item], Toast.LENGTH_SHORT).show();
                 TextView sortText = (TextView) findViewById(R.id.sort);
                 sortText.setText(sort[item]);
                 currentSorting = SORT.values()[item];
@@ -287,8 +284,6 @@ public class MainActivity extends AppCompatActivity {
         distanceDialog.setSingleChoiceItems(distance, currentDistance.ordinal(), new DialogInterface
                 .OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                Toast.makeText(getApplicationContext(),
-                        "DISTANCE = " + distance[item], Toast.LENGTH_SHORT).show();
                 TextView distanceText = (TextView) findViewById(R.id.distance);
                 currentDistance = DISTANCE.values()[item];
                 distanceText.setText("Distance: " + distance[item]);
@@ -342,7 +337,6 @@ public class MainActivity extends AppCompatActivity {
                                 String priceText = "Price: Any";
                                 if (minPriceSet && maxPriceSet) {
                                     priceText = "$" + priceFrom + " - " + "$" + priceTo;
-//                                    offersByPrice = offersByPrice.orderByChild("price").startAt(fromPrice).endAt(toPrice);
                                     priceFromEdit = priceFrom;
                                     priceToEdit = priceTo;
                                 } else if (minPriceSet) {
@@ -381,7 +375,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void openCategoriesActivity(View view) {
-        Intent intent = new Intent(view.getContext(), CategoriesActivity.class);
+        Intent intent = new Intent(view.getContext(), CategoriesActivity_.class);
         startActivityForResult(intent, CATEGORY_REQUEST);
     }
 
@@ -455,6 +449,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finishAffinity();
     }
 
     private enum SORT {

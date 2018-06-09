@@ -13,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.sell.dao.LoginDao;
 import com.google.android.gms.common.api.Status;
@@ -48,9 +47,6 @@ public class LocationActivity extends AppCompatActivity {
 
     @ViewById(R.id.location)
     TextView location;
-
-//    @ViewById(R.id.location_edit_text_location)
-//    EditText locationEditText;
 
     @ViewById(R.id.location_save_location_button)
     Button saveLocationButton;
@@ -87,7 +83,7 @@ public class LocationActivity extends AppCompatActivity {
                 mQuestion.setText(R.string.selling_question);
             }
         }
-        if(loginDao.getCurrentUser().getLocation() != null) {
+        if (loginDao.getCurrentUser().getLocation() != null) {
             lat = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[0]);
             lng = Double.parseDouble(loginDao.getCurrentUser().getLocation().split(",")[1]);
             city = loginDao.getCurrentUser().getLocation().split(",")[2];
@@ -174,9 +170,6 @@ public class LocationActivity extends AppCompatActivity {
     @Click(R.id.location_get)
     public void getLastLocation() {
         String s = lng + "\n" + lat + "\nCountry: " + country + "\nCity: " + city;
-        Toast.makeText(
-                getBaseContext(),
-                s, Toast.LENGTH_SHORT).show();
         location.setText(city + ", " + country);
     }
 

@@ -34,7 +34,7 @@
             android:name=".MainActivity_"
             android:label="@string/app_name"/>
         <activity android:name=".OfferActivity_" />
-        <activity android:name=".CategoriesActivity" />
+        <activity android:name=".CategoriesActivity_" />
         <activity android:name=".LocationActivity_" />
         <activity android:name=".AskActivity_"
             android:windowSoftInputMode="adjustResize"/>
