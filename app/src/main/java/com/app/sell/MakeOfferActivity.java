@@ -1,32 +1,26 @@
 package com.app.sell;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.app.sell.dao.ChatMessageDao;
 import com.app.sell.dao.ChatroomDao;
 import com.app.sell.dao.LoginDao;
+import com.app.sell.events.ChatMessageQueuedEvent;
+import com.app.sell.events.ChatMessageSentEvent;
 import com.app.sell.events.ChatroomCreatedEvent;
 import com.app.sell.events.ChatroomLoadedEvent;
 import com.app.sell.model.ChatMessage;
-import com.app.sell.view.MakeOfferLayout;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.Extra;
 import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -36,7 +30,7 @@ public class MakeOfferActivity extends AppCompatActivity {
 
     String offerId;
     String offererId;
-    String mChatroomId;
+    String chatroomId;
     Double offerPrice;
     Boolean fixPrice;
     @Bean
@@ -66,25 +60,40 @@ public class MakeOfferActivity extends AppCompatActivity {
         chatroomDao.loadChatroom(senderId, offererId, offerId);
     }
 
+    @Subscribe
+    public void chatroomCreated(ChatroomCreatedEvent chatroomCreatedEvent) {
+        offerClicked();
+    }
+
     @Click(R.id.make_offer_button)
-    public void offerClicked(Button button) {
+    public void offerClicked() {
+        ChatMessage offerChatMessage = createChatMessage();
+        chatMessageDao.sendChatroomMessage(chatroomId, offerId, offererId, offerChatMessage);
+        Snackbar.make(makeOfferButton, R.string.offer_message_sending, Snackbar.LENGTH_SHORT);
+    }
+
+    @NonNull
+    private ChatMessage createChatMessage() {
         String message = getString(R.string.offer_message);
         message += " " + getString(R.string.default_currency) + priceEditText.getText().toString();
         long timestamp = System.currentTimeMillis();
         String senderId = loginDao.getCurrentUser().getUid();
         String senderUsername = loginDao.getCurrentUser().getUsername();
 
-        ChatMessage offerChatMessage = new ChatMessage("", senderId, senderUsername, message, timestamp);
-        chatMessageDao.sendChatroomMessage(mChatroomId, offerId, offererId, offerChatMessage);
-        Snackbar.make(makeOfferButton, R.string.offer_message_sent, Snackbar.LENGTH_SHORT);
-        finish();
+        return new ChatMessage("", senderId, senderUsername, message, timestamp);
     }
 
     @Subscribe
     public void chatroomLoaded(ChatroomLoadedEvent chatroomLoadedEvent) {
-        mChatroomId = chatroomLoadedEvent.chatroom.getId();
+        chatroomId = chatroomLoadedEvent.chatroom.getId();
         String imageUri = chatroomLoadedEvent.chatroom.getOfferImageUri();
         Picasso.get().load(imageUri).into(offerImageView);
+    }
+
+    @Subscribe
+    public void chatMessageSent(ChatMessageSentEvent chatMessageSentEvent) {
+        Snackbar.make(makeOfferButton, R.string.offer_message_sending, Snackbar.LENGTH_SHORT);
+        finish();
     }
 
     @Override
