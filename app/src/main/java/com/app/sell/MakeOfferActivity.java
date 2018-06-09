@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import com.app.sell.dao.ChatMessageDao;
 import com.app.sell.dao.ChatroomDao;
 import com.app.sell.dao.LoginDao;
-import com.app.sell.events.ChatMessageQueuedEvent;
 import com.app.sell.events.ChatMessageSentEvent;
 import com.app.sell.events.ChatroomCreatedEvent;
 import com.app.sell.events.ChatroomLoadedEvent;
