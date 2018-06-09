@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.anton46.stepsview.StepsView;
 import com.app.sell.dao.LoginDao;
 import com.app.sell.model.Offer;
+import com.app.sell.view.NonSwipeableViewPager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -64,7 +65,7 @@ public class PostOfferActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    private NonSwipeableViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +79,7 @@ public class PostOfferActivity extends AppCompatActivity {
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (NonSwipeableViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         StepsView mStepsView = (StepsView) findViewById(R.id.stepsView);
