@@ -72,8 +72,9 @@ public class PostOfferActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_offer);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.account_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.postoffer_toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -145,14 +146,6 @@ public class PostOfferActivity extends AppCompatActivity {
 
     private int getItem(int i) {
         return mViewPager.getCurrentItem() + i;
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_post_offer, menu);
-        return true;
     }
 
     @Override
