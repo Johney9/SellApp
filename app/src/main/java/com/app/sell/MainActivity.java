@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot offerSnapshot : dataSnapshot.getChildren()) {
                     Offer offer = offerSnapshot.getValue(Offer.class);
 //                    if(searchTermForQuery.length() == 0 || searchTermForQuery.length() != 0 && offer.getTitle().contains(searchTermForQuery)) {
-                    if (checkSearchTerm(offer) && checkPrice(offer) && checkDistance(offer) && checkCategory(offer)) {
+                    if (checkSearchTerm(offer) && checkPrice(offer) && checkDistance(offer) && checkCategory(offer) && !offer.getIsDeleted()) {
                         offers.add(offer);
                     }
                 }

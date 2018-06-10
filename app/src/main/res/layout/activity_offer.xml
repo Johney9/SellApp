@@ -146,6 +146,12 @@
                 android:layout_weight="1.0"
                 android:onClick="openMakeOfferActivity"/>
 
+            <Button
+                android:id="@+id/delete_offer"
+                android:layout_width="0.0dip" android:layout_height="fill_parent"
+                android:text="Delete Offer"
+                android:layout_weight="1.0"/>
+
         </LinearLayout>
 
     </LinearLayout>

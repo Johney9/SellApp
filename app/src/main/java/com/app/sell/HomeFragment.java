@@ -101,7 +101,9 @@ public class HomeFragment extends Fragment {
                 offers.clear();
                 for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
                     Offer offer = offerSnapshot.getValue(Offer.class);
-                    offers.add(offer);
+                    if(!offer.getIsDeleted()) {
+                        offers.add(offer);
+                    }
                 }
 
                 Collections.reverse(offers);
