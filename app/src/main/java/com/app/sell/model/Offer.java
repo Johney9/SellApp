@@ -16,5 +16,6 @@ public class Offer {
     private String offererId;
     private Long timestamp;
     private String categoryId;
+    private Boolean isDeleted;
 
 }

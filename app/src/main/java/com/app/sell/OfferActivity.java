@@ -52,6 +52,8 @@ public class OfferActivity extends AppCompatActivity {
     Button ask;
     @ViewById(R.id.make_offer)
     Button makeOffer;
+    @ViewById(R.id.delete_offer)
+    Button deleteOfferBtn;
     @ViewById(R.id.offer_condition)
     TextView offerCondition;
     @ViewById(R.id.offer_fixed_price)
@@ -95,6 +97,8 @@ public class OfferActivity extends AppCompatActivity {
                 if (loginDao.getCurrentUser().getUid().equals(offer.getOffererId())) {
                     ask.setVisibility(View.INVISIBLE);
                     makeOffer.setVisibility(View.INVISIBLE);
+                } else if(!offer.getIsDeleted()){
+                    deleteOfferBtn.setVisibility(View.INVISIBLE);
                 }
 
                 //user binding
@@ -155,6 +159,13 @@ public class OfferActivity extends AppCompatActivity {
     public void openProfileActivity(View view) {
         Intent intent = new Intent(view.getContext(), ProfileActivity_.class);
         intent.putExtra("uid", offer.getOffererId());
+        startActivity(intent);
+    }
+
+    @Click(R.id.delete_offer)
+    public void deleteOffer(View view) {
+        FirebaseDatabase.getInstance().getReference(getString(R.string.db_node_offers)).child(offer.getId()).child("isDeleted").setValue(true);
+        Intent intent = new Intent(view.getContext(), MainActivity_.class);
         startActivity(intent);
     }
 }

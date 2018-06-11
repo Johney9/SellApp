@@ -242,6 +242,7 @@ public class PostOfferActivity extends AppCompatActivity {
         newOffer.setLocation(finishFragment.getOfferLocation());
         newOffer.setOffererId(loginDao.getCurrentUser().getUid());
         newOffer.setTimestamp(System.currentTimeMillis());
+        newOffer.setIsDeleted(false);
 
         mDatabase.child("offers").child(offerId.toString()).setValue(newOffer);
     }
