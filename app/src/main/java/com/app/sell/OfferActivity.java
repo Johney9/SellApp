@@ -97,6 +97,9 @@ public class OfferActivity extends AppCompatActivity {
                 if (loginDao.getCurrentUser().getUid().equals(offer.getOffererId())) {
                     ask.setVisibility(View.INVISIBLE);
                     makeOffer.setVisibility(View.INVISIBLE);
+                    if(offer.getIsDeleted()){
+                        deleteOfferBtn.setVisibility(View.INVISIBLE);
+                    }
                 } else if(!offer.getIsDeleted()){
                     deleteOfferBtn.setVisibility(View.INVISIBLE);
                 }
