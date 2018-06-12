@@ -74,6 +74,17 @@ public class ChangePictureActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        bind();
+    }
+
+    void bind() {
+        User currentUser = loginDao.getCurrentUser();
+        Glide.with(this).load(currentUser.getImage()).into(mProfileImageView);
+    }
+
+    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
@@ -90,17 +101,6 @@ public class ChangePictureActivity extends AppCompatActivity {
                 Toast.makeText(this, "read permission denied, image will be shown only when uploaded", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        bind();
-    }
-
-    void bind() {
-        User currentUser = loginDao.getCurrentUser();
-        Glide.with(this).load(currentUser.getImage()).into(mProfileImageView);
     }
 
     @Click(R.id.change_picture_from_gallery_button)
@@ -231,5 +231,11 @@ public class ChangePictureActivity extends AppCompatActivity {
     private void changeProfilePhoto(@NonNull Uri uri, ImageView imageView) {
         loginDao.getCurrentUser().setImage(uri.toString());
         loginDao.writeCurrentUser();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Glide.with(this).pauseRequests();
+        super.onDestroy();
     }
 }

@@ -129,4 +129,10 @@ public class AccountActivity extends AppCompatActivity {
         EventBus.getDefault().unregister(this);
         super.onStop();
     }
+
+    @Override
+    protected void onDestroy() {
+        Glide.with(this).pauseRequests();
+        super.onDestroy();
+    }
 }
