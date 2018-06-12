@@ -1,8 +1,92 @@
 <resources>
-    <string name="app_name">SellApp</string>
+    <string name="app_name">Prodaj!</string>
     <string name="title_home">Home</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_photo">Post an Offer</string>
     <string name="title_offers">Offers</string>
     <string name="title_account">Account</string>
+    <string name="title_activity_offer">OfferActivity</string>
+    <string name="still_available">Is this still available?</string>
+    <string name="like_to_buy">I\'d like to buy this</string>
+    <string name="meet_today">Can you meet today?</string>
+    <string name="title_activity_my_offers">MyOffersActivity</string>
+    <string name="tab_text_1">SELLING</string>
+    <string name="tab_text_2">BUYING</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="button_previous">Previous</string>
+    <string name="button_next">Next</string>
+    <string name="chk_frm_on_price">Firm on price?</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_post_offer">Create new offer</string>
+    <string name="tab_text_3">Tab 3</string>
+
+    <string name="title_activity_profile">Profile</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="user_name">"username"</string>
+    <string name="user_rating">"Rating: "</string>
+    <string name="offers">"Offers:"</string>
+    <string name="title_activity_notifications">Notifications</string>
+    <string name="title_activity_account">Account</string>
+    <string name="title_activity_edit_account">Edit Account Details</string>
+    <string name="title_activity_change_picture">Change Profile Picture</string>
+    <string name="sign_in_cancelled">Sign in was cancelled by you.</string>
+    <string name="no_internet_connection">Could not reach servers. Check your internet connection?</string>
+    <string name="unknown_error">Unknown error encountered.</string>
+    <string name="sign_out_failed">Sign out has failed. Please try again later.</string>
+    <string name="sign_out">Sign out</string>
+    <string name="default_location">Novi Sad, Serbia</string>
+    <string name="selling_question">Where are you selling?</string>
+    <string name="take_a_new_photo">Take a new photo</string>
+    <string name="select_an_existing_photo">Select an existing photo</string>
+    <string name="field_messaging_token">messagingToken</string>
+    <string name="db_node_users">users</string>
+    <string name="db_node_categories">categories</string>
+    <string name="message_data_type">message_data_type</string>
+    <string name="data_type_chat_message">type_chat_message</string>
+    <string name="data_type_offer_message">type_offer_message</string>
+    <string name="db_node_chatrooms">chatrooms</string>
+    <string name="message_data_title">title</string>
+    <string name="message_data_message">message</string>
+    <string name="message_data_chatroom_id">chatroomId</string>
+    <string name="field_chatroom_id">chatroomId</string>
+    <string name="field_asker_id">asker_id</string>
+    <string name="field_chatroom_name">chatroom_name</string>
+    <string name="field_offerer_id">offerer_id</string>
+    <string name="field_offer_id">offer_id</string>
+    <string name="field_offer_price">offer_price</string>
+    <string name="field_offer_fix_price">true</string>
+    <string name="field_last_message_seen">lastMessageSeen</string>
+    <string name="field_chatroom_message_number">total_message_number</string>
+    <string name="db_node_offers">offers</string>
+    <string name="ask_activity_shared_pref">ASK_ACTIVITY</string>
+    <string name="db_node_notifications">notifications</string>
+    <string name="message_data_icon_uri">iconUri</string>
+    <string name="image_uploaded_to_firebase">Profile image successfully uploaded.</string>
+    <string name="image_uploaded_to_firebase_fail">Profile image upload failed.</string>
+    <string name="db_node_chatroom_messages">chatroomMessages</string>
+    <string name="offer_message">Hi, I would like to buy this for:  </string>
+    <string name="default_currency">$</string>
+    <string name="offer_message_sent">Offer sent!</string>
+    <string name="make_offer">Make offer</string>
+    <string name="enter_you_offer">Enter you offer</string>
+    <string name="offer_message_sending">Sending offer...</string>
+    <string name="offer">Offer</string>
+    <string name="edit_info">Edit Info</string>
+    <string name="field_offer_image">offer_image</string>
 </resources>

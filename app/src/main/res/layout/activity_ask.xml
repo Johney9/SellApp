@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AskActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/ask_profile_image"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:layout_margin="12dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="0dp"
+                app:civ_border_color="#FF000000"
+                app:civ_border_width="2dp" />
+
+            <TextView
+                android:id="@+id/ask_username_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="12dp"
+                android:paddingHorizontal="5dp"
+                android:text="@string/user_name"
+                android:textSize="18sp" />
+
+            <com.klinker.android.badged_imageview.BadgedImageView
+                android:id="@+id/ask_offer_image_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="12dp"
+                android:scaleType="fitCenter"
+                app:badgeColor="@android:color/white"
+                app:badgeGravity="start|bottom"
+                app:badgePadding="8dp"
+                app:badgeText="$300" />
+
+        </LinearLayout>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/still_available"
+                android:onClick="sendIsStillAvailableMsg"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/meet_today"
+                android:onClick="sendToMeetMsg"/>
+        </LinearLayout>
+
+        <co.intentservice.chatui.ChatView
+            android:id="@+id/chat_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:bubbleBackgroundRcv="?android:attr/colorBackgroundFloating"
+            app:bubbleElevation="elevated"/>
+
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

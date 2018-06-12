@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE resources [
+    <!ENTITY colorPrimary "#3F51B5">
+    <!ENTITY colorPrimaryDark "#303F9F">
+    <!ENTITY colorAccent "#FF4081">
+]>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">&colorPrimary;</color>
+    <color name="colorPrimaryDark">&colorPrimaryDark;</color>
+    <color name="colorAccent">&colorAccent;</color>
+    <color name="default_bubble_color_rcv">&colorPrimary;</color>
 </resources>
