@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+            if (response.getError() != null && response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
                 showSnackbar(R.string.no_internet_connection);
                 return;
             }
