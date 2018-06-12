@@ -314,7 +314,7 @@ public class MyOffersFragment extends Fragment {
                                 if(!offer.getIsDeleted()) {
                                     boolean isBuyingOffer = false;
                                     for (String buyingOfferId : buyingOffersIds) {
-                                        if (buyingOfferId.equals(offer.getId())) {
+                                        if (buyingOfferId!=null && buyingOfferId.equals(offer.getId())) {
                                             isBuyingOffer = true;
                                             break;
                                         }
@@ -327,7 +327,9 @@ public class MyOffersFragment extends Fragment {
                             }
 
                             Collections.reverse(offers);
-                            gridview.setAdapter(new BuyingOffersImageAdapter(getContext(), offers));
+                            if(getContext()!=null){
+                                gridview.setAdapter(new BuyingOffersImageAdapter(getContext(), offers));
+                            }
                         }
 
                         @Override

@@ -215,6 +215,9 @@ public class MainActivity extends AppCompatActivity {
             case FIFTY:
                 isGoodDistance = dis <= 50;
                 break;
+            case HUNDRED:
+                isGoodDistance = dis <= 100;
+                break;
             case ANY:
                 isGoodDistance = true;
                 break;
