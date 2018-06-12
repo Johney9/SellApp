@@ -327,7 +327,9 @@ public class MyOffersFragment extends Fragment {
                             }
 
                             Collections.reverse(offers);
-                            gridview.setAdapter(new BuyingOffersImageAdapter(getContext(), offers));
+                            if(getContext()!=null){
+                                gridview.setAdapter(new BuyingOffersImageAdapter(getContext(), offers));
+                            }
                         }
 
                         @Override
