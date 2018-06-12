@@ -20,9 +20,9 @@ import com.app.sell.events.UserLoadedEvent;
 import com.app.sell.model.Chatroom;
 import com.app.sell.model.Offer;
 import com.app.sell.model.User;
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.klinker.android.badged_imageview.BadgedImageView;
-import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -120,7 +120,7 @@ public class AskActivity extends AppCompatActivity {
     private void bindOfferer(User user) {
         mOffererId = user.getUid();
         usernameTextView.setText(user.getUsername());
-        Picasso.get().load(user.getImage()).into(profileImageView);
+        Glide.with(this).load(user.getImage()).into(profileImageView);
     }
 
     @Subscribe
@@ -155,7 +155,7 @@ public class AskActivity extends AppCompatActivity {
     private void bindOffer(Offer offer) {
         mOfferId = offer.getId();
         offerImageView.setBadge(String.valueOf(offer.getPrice()));
-        Picasso.get().load(offer.getImage()).into(offerImageView);
+        Glide.with(this).load(offer.getImage()).into(offerImageView);
     }
 
     @Subscribe
