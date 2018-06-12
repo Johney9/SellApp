@@ -135,7 +135,7 @@ public class OfferActivity extends AppCompatActivity {
         offerCondition.setText("Condition: " + offer.getCondition());
         offerFixedPrice.setText((offer.getFirmOnPrice() ? "Fixed price!" : "Dynamic price!"));
 
-        if (loginDao.getCurrentUser().getUid().equals(offer.getOffererId())) {
+        if (loginDao.getCurrentUser() != null && loginDao.getCurrentUser().getUid().equals(offer.getOffererId())) {
             ask.setVisibility(View.INVISIBLE);
             makeOffer.setVisibility(View.INVISIBLE);
             if(offer.getIsDeleted()){
