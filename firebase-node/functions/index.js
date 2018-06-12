@@ -137,6 +137,83 @@ exports.sendChatNotification = functions.database.ref('/chatrooms/{chatroomId}/c
 	});
 });
 
+exports.sendOfferDeletedNotification = functions.database.ref('/offers/{offerId}/isDeleted')
+.onUpdate((snapshot, context) => {
+
+	console.log("Offer deleted logic starting...");
+	let deletedOfferId = context.params.offerId;
+	let message = "This item has been sold / is no longer available."
+
+	let isDeleted = snapshot.after.val();
+	if(isDeleted === false) {
+		return 0;
+	}
+	
+	admin.database().ref("/chatrooms")
+	.orderByChild("offerId").equalTo(deletedOfferId)
+	.on("child_added", (chatroomSnapshot) => {
+
+		let chatroomId = chatroomSnapshot.child('id').val();
+		console.log("Chatroom found: ", chatroomId)
+		let askerId = chatroomSnapshot.child('askerId').val();
+		let iconUri = chatroomSnapshot.child('offerImageUri').val();
+
+		let users = chatroomSnapshot.child('users').val();
+
+		let recieverId = "";
+		_.forEach(users, (user => {
+			if(user.id !== askerId) {
+				recieverId = user.id;
+			}
+		}));
+
+		return admin.database().ref("/users/"+recieverId).on("value", userSnapshot => {
+			let senderUsername = userSnapshot.child('username').val();
+
+			console.log("Username loaded: ", senderUsername);
+
+			let ref = "/chatrooms/"+chatroomId+"/chatroomMessages";
+			console.log("pushing to node: ", ref);
+			return admin.database().ref(ref).push({
+				message: message,
+				senderId: "",
+				senderUsername: "",
+				timestamp: Date.now()
+			});
+		});
+
+
+		/*
+		admin.database().ref("/users/"+askerId).on("value", userSnapshot => {
+			let token = userSnapshot.child('messagingToken').val();
+
+			console.log("Constructing the notification message.");
+			const payload = {
+				data: {
+					message_data_type: "type_chat_message",
+					title: "Prodaj!",
+					message: message,
+					chatroomId: chatroomId,
+					icon: iconUri
+				}
+			};
+			console.log("Constructed message: ", payload);
+
+			return admin.messaging().sendToDevice(token, payload)
+				.then((response) => {
+					// See the MessagingDevicesResponse reference documentation for
+					// the contents of response.
+					console.log("Successfully sent message:", response);
+					return response;
+					})
+					.catch((error) => {
+					console.log("Error sending message:", error);
+					});
+		});
+		*/
+	});
+});
+
 exports.autoAssignId = functions.database.ref("{parentNode}/{topId}")
 .onCreate((snap, context) => {
 	console.log("ID auto assignment starting");
