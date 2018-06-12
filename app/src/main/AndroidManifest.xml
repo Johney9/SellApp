@@ -44,8 +44,12 @@
         <activity
             android:name=".PostOfferActivity_"
             android:label="@string/title_activity_post_offer"
-            android:theme="@style/AppTheme.NoActionBar" />
-
+            android:parentActivityName=".MainActivity_"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.app.sell.MainActivity_" />
+        </activity>
         <provider
             android:name=".provider.GenericFileProvider"
             android:authorities="${applicationId}.provider"

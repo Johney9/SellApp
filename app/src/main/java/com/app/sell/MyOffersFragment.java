@@ -311,17 +311,18 @@ public class MyOffersFragment extends Fragment {
                             offers.clear();
                             for (DataSnapshot offerSnapshot: dataSnapshot.getChildren()) {
                                 Offer offer = offerSnapshot.getValue(Offer.class);
-
-                                boolean isBuyingOffer = false;
-                                for(String buyingOfferId: buyingOffersIds){
-                                    if(buyingOfferId.equals(offer.getId())){
-                                        isBuyingOffer = true;
-                                        break;
+                                if(!offer.getIsDeleted()) {
+                                    boolean isBuyingOffer = false;
+                                    for (String buyingOfferId : buyingOffersIds) {
+                                        if (buyingOfferId.equals(offer.getId())) {
+                                            isBuyingOffer = true;
+                                            break;
+                                        }
                                     }
-                                }
 
-                                if(isBuyingOffer){
-                                    offers.add(offer);
+                                    if (isBuyingOffer) {
+                                        offers.add(offer);
+                                    }
                                 }
                             }
 

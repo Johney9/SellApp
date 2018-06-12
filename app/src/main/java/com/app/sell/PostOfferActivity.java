@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.anton46.stepsview.StepsView;
 import com.app.sell.dao.LoginDao;
 import com.app.sell.model.Offer;
+import com.app.sell.view.NonSwipeableViewPager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -64,21 +65,22 @@ public class PostOfferActivity extends AppCompatActivity {
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
+    private NonSwipeableViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_offer);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.account_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.postoffer_toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = (NonSwipeableViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         StepsView mStepsView = (StepsView) findViewById(R.id.stepsView);
@@ -144,14 +146,6 @@ public class PostOfferActivity extends AppCompatActivity {
 
     private int getItem(int i) {
         return mViewPager.getCurrentItem() + i;
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_post_offer, menu);
-        return true;
     }
 
     @Override
@@ -248,6 +242,7 @@ public class PostOfferActivity extends AppCompatActivity {
         newOffer.setLocation(finishFragment.getOfferLocation());
         newOffer.setOffererId(loginDao.getCurrentUser().getUid());
         newOffer.setTimestamp(System.currentTimeMillis());
+        newOffer.setIsDeleted(false);
 
         mDatabase.child("offers").child(offerId.toString()).setValue(newOffer);
     }

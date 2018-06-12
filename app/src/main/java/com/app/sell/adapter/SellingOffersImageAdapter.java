@@ -45,21 +45,31 @@ public class SellingOffersImageAdapter extends BaseAdapter {
         View v = view;
         ImageView picture;
         TextView name;
+        TextView deleted;
+
+        Offer offer = getItem(i);
 
         if (v == null) {
             v = mInflater.inflate(R.layout.grid_item, viewGroup, false);
             v.setTag(R.id.picture, v.findViewById(R.id.picture));
             v.setTag(R.id.text, v.findViewById(R.id.text));
+            v.setTag(R.id.deleted, v.findViewById(R.id.deleted));
+
         }
 
         picture = (ImageView) v.getTag(R.id.picture);
         name = (TextView) v.getTag(R.id.text);
+        deleted = (TextView) v.getTag(R.id.deleted);
 
-        Offer offer = getItem(i);
+
 
         Glide.with(context).load(offer.getImage()).into(picture);
         name.setText(offer.getTitle());
-
+        if(offer.getIsDeleted()){
+            deleted.setVisibility(View.VISIBLE);
+        }else{
+            deleted.setVisibility(View.GONE);
+        }
         v.setPadding(8, 8, 8, 8);
 
         return v;

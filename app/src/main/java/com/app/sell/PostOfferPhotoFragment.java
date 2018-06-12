@@ -244,6 +244,11 @@ public class PostOfferPhotoFragment extends Fragment implements IPostOfferFragme
             return false;
         }
 
+        if(mTitle.getText().toString().length() > 30){
+            Toast.makeText(getContext(),"Offer title must have less than 30 characters",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
         return true;
     }
 
