@@ -68,8 +68,13 @@ public class SpecificUserOffersDao {
                 for (DataSnapshot userOffer : dataSnapshot.getChildren()) {
 
                     Offer offer = userOffer.getValue(Offer.class);
-                    if (offer != null && offer.getOffererId().contains(uid)) {
-                        userOffers.add(offer);
+                    try {
+                        if (offer != null && offer.getOffererId().contains(uid) && !offer.getIsDeleted()) {
+                            userOffers.add(offer);
+                            Log.d(TAG, "added offer: " + offer.getId());
+                        }
+                    } catch (NullPointerException e) {
+                        Log.e(TAG, "error adding offer: ", e);
                     }
                 }
                 EventBus.getDefault().post(new OffersRetrievedEvent(userOffers));

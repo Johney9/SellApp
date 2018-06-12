@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.app.sell.dao.LoginDao;
 import com.app.sell.events.LoggedInEvent;
 import com.app.sell.model.User;
+import com.app.sell.util.GlideLoader;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -80,7 +81,7 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         accountProfileUsernameTextview.setText(currentUser.getUsername());
-        Glide.with(this).load(currentUser.getImage()).into(profileImage);
+        GlideLoader.loadIfValid(this, currentUser.getImage(), profileImage);
     }
 
     @Click(R.id.sign_out)
@@ -132,7 +133,7 @@ public class AccountActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Glide.with(this).pauseRequests();
         super.onDestroy();
+        Glide.with(getApplicationContext()).pauseRequests();
     }
 }

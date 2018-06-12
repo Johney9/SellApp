@@ -19,6 +19,7 @@ import org.androidannotations.annotations.OnActivityResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @SuppressLint("Registered")
 @EActivity(R.layout.activity_login)
@@ -86,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            if (response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
+            if (response.getError() != null && response.getError().getErrorCode() == ErrorCodes.NO_NETWORK) {
                 showSnackbar(R.string.no_internet_connection);
                 return;
             }
@@ -102,6 +103,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void showSnackbar(@StringRes int errorMessageRes) {
-        Snackbar.make(this.getCurrentFocus(), errorMessageRes, Snackbar.LENGTH_LONG).show();
+        try {
+            Snackbar.make(Objects.requireNonNull(this.getCurrentFocus()), errorMessageRes, Snackbar.LENGTH_LONG).show();
+        } catch (NullPointerException e) {
+            Log.e(TAG, "showSnackbar failed: ", e);
+        }
     }
 }
