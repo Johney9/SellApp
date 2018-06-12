@@ -156,6 +156,7 @@ exports.sendOfferDeletedNotification = functions.database.ref('/offers/{offerId}
 		let chatroomId = chatroomSnapshot.child('id').val();
 		console.log("Chatroom found: ", chatroomId)
 		let askerId = chatroomSnapshot.child('askerId').val();
+		console.log("Asker id: ", askerId);
 		let iconUri = chatroomSnapshot.child('offerImageUri').val();
 
 		let users = chatroomSnapshot.child('users').val();
@@ -166,8 +167,10 @@ exports.sendOfferDeletedNotification = functions.database.ref('/offers/{offerId}
 				recieverId = user.id;
 			}
 		}));
-
-		return admin.database().ref("/users/"+recieverId).on("value", userSnapshot => {
+		
+		return admin.database().ref("/users/" + recieverId).once('value').then(userSnapshot => {
+			let queriedUser = userSnapshot.val();
+			console.log("User snapshot: ", queriedUser);
 			let senderUsername = userSnapshot.child('username').val();
 
 			console.log("Username loaded: ", senderUsername);
@@ -181,36 +184,6 @@ exports.sendOfferDeletedNotification = functions.database.ref('/offers/{offerId}
 				timestamp: Date.now()
 			});
 		});
-
-
-		/*
-		admin.database().ref("/users/"+askerId).on("value", userSnapshot => {
-			let token = userSnapshot.child('messagingToken').val();
-
-			console.log("Constructing the notification message.");
-			const payload = {
-				data: {
-					message_data_type: "type_chat_message",
-					title: "Prodaj!",
-					message: message,
-					chatroomId: chatroomId,
-					icon: iconUri
-				}
-			};
-			console.log("Constructed message: ", payload);
-
-			return admin.messaging().sendToDevice(token, payload)
-				.then((response) => {
-					// See the MessagingDevicesResponse reference documentation for
-					// the contents of response.
-					console.log("Successfully sent message:", response);
-					return response;
-					})
-					.catch((error) => {
-					console.log("Error sending message:", error);
-					});
-		});
-		*/
 	});
 });
 
