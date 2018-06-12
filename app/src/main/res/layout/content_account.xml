@@ -60,6 +60,19 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"/>
 
         <Button
+            android:id="@+id/account_edit_username"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_column="0"
+            android:layout_columnSpan="2"
+            android:layout_margin="15dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/edit_info"
+            android:onClick="openEditAccountActivity"
+            />
+
+        <Button
             android:id="@+id/sign_out"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
