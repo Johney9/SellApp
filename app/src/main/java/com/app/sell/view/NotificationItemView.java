@@ -7,7 +7,7 @@ import android.widget.TextView;
 
 import com.app.sell.R;
 import com.app.sell.model.NotificationItem;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import org.androidannotations.annotations.EViewGroup;
 import org.androidannotations.annotations.ViewById;
@@ -38,6 +38,6 @@ public class NotificationItemView extends RelativeLayout {
         usernameView.setText(notification.getUsername());
         String formattedDateTime = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, getResources().getConfiguration().getLocales().get(0)).format(notification.getTimestamp());
         timestampView.setText(formattedDateTime);
-        Picasso.get().load(notification.getIconUri()).into(iconView);
+        Glide.with(getContext()).load(notification.getIconUri()).into(iconView);
     }
 }

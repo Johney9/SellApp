@@ -33,4 +33,10 @@ public class User {
         this.setEmail(firebaseUser.getEmail());
         this.setUid(firebaseUser.getUid());
     }
+
+    public String getPrettyLocation() {
+        String city = getLocation().split(",")[2];
+        String country = getLocation().split(",")[3];
+        return city + "," + country;
+    }
 }

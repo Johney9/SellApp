@@ -19,7 +19,6 @@ import com.app.sell.view.ViewWrapper;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
-import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -59,17 +58,5 @@ public class NotificationAdapter extends RecyclerViewAdapterBase<NotificationIte
 
     private void onClick(NotificationItem notification) {
         AskActivity_.intent(context).extra(context.getString(R.string.field_chatroom_id), notification.getChatroomId()).start();
-    }
-
-    @Override
-    public void registerAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
-        super.registerAdapterDataObserver(observer);
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void unregisterAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
-        super.unregisterAdapterDataObserver(observer);
-        EventBus.getDefault().unregister(this);
     }
 }

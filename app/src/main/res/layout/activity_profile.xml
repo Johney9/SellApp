@@ -1,27 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/profile_page"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fitsSystemWindows="true"
     tools:context=".ProfileActivity">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/account_app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        android:id="@+id/profile_appbar">
+        android:fitsSystemWindows="true"
+        android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/profile_toolbar"
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/toolbar_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:layout_collapseMode="pin"
-            >
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:contentScrim="@color/colorPrimary"
+            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Title"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:toolbarId="@+id/account_toolbar">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/account_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -30,84 +39,54 @@
 
                 <com.makeramen.roundedimageview.RoundedImageView
                     android:id="@+id/profile_image_imageview"
-                    android:layout_width="match_parent"
+                    android:layout_width="@dimen/app_bar_height"
                     android:layout_height="@dimen/app_bar_height"
+                    android:layout_gravity="center_horizontal"
                     android:scaleType="fitCenter"
                     android:src="@drawable/mv"
-                    android:background="@color/colorPrimary"
                     app:riv_mutate_background="false"
                     app:riv_oval="true" />
 
                 <Toolbar
-                    android:layout_height="wrap_content"
                     android:layout_width="match_parent"
-                    >
+                    android:layout_height="wrap_content">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
                         <TextView
                             android:id="@+id/profile_username"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/colorAccent"
                             android:text="@string/user_name"
                             android:gravity="center_horizontal"
                             android:textSize="20sp"
-                            />
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_horizontal">
+                            android:background="@color/colorPrimary"/>
 
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                android:text="@string/user_rating"/>
+                        <TextView
+                            style="@style/Widget.AppCompat.Toolbar"
+                            android:id="@+id/profile_offers_title"
+                            android:layout_width="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:layout_height="30dp"
+                            android:layout_centerInParent="true"
+                            android:text="@string/offers"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
-                            <RatingBar
-                                android:layout_width="wrap_content"
-                                android:layout_height="match_parent"
-                                style="@style/Base.Widget.AppCompat.RatingBar.Small" />
-
-                        </LinearLayout>
                     </LinearLayout>
+
                 </Toolbar>
+
             </LinearLayout>
-        </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+
     </android.support.design.widget.AppBarLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/toolbar_relative_layout"
-        app:layout_constraintTop_toBottomOf="@id/profile_appbar">
+    <include layout="@layout/content_profile"/>
 
-        <Toolbar
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:id="@+id/offers_toolbar"
-            >
-        </Toolbar>
-
-        <TextView
-            style="@style/Widget.AppCompat.Toolbar"
-            android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:layout_centerInParent="true"
-            android:text="@string/offers"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
-
-    </RelativeLayout>
-
-    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/profile_offers_gridview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:numColumns="3"
-        android:stretchMode="columnWidth"
-        app:layout_constraintTop_toBottomOf="@id/toolbar_relative_layout"/>
-
-</android.support.constraint.ConstraintLayout>
+</android.support.design.widget.CoordinatorLayout>

@@ -1,24 +1,22 @@
 package com.app.sell;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.widget.TextView;
 
-import com.app.sell.adapter.UserOffersAdapter;
+import com.app.sell.adapter.UserOfferAdapter;
 import com.app.sell.dao.SpecificUserOffersDao;
 import com.app.sell.events.LoggedInEvent;
-import com.app.sell.events.OffersRetrievedEvent;
-import com.app.sell.model.Offer;
 import com.app.sell.model.User;
+import com.bumptech.glide.Glide;
 import com.makeramen.roundedimageview.RoundedImageView;
-import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -29,7 +27,7 @@ public class ProfileActivity extends AppCompatActivity {
     @ViewById(R.id.profile_username)
     TextView mProfileUsernameTextView;
     @ViewById(R.id.profile_offers_gridview)
-    GridView mOffersGridView;
+    RecyclerView mOffersGridRecyclerView;
     @ViewById(R.id.profile_image_imageview)
     RoundedImageView mProfileImage;
     @Bean
@@ -51,37 +49,21 @@ public class ProfileActivity extends AppCompatActivity {
         eventBus.unregister(this);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
+    @AfterViews
+    void init() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         uid = getIntent().getStringExtra("uid");
         specificUserOffersDao.getData(uid);
-    }
-
-    @AfterViews
-    void init() {
-        mOffersGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View v,
-                                    int position, long id) {
-                Offer offer = (Offer) mOffersGridView.getAdapter().getItem(position);
-                Intent intent = new Intent(v.getContext(), OfferActivity_.class);
-                intent.putExtra(getString(R.string.field_offer_id), offer.getId());
-                startActivity(intent);
-            }
-        });
+        mOffersGridRecyclerView.setAdapter(new UserOfferAdapter(this));
+        mOffersGridRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
     }
 
     @Subscribe
+    @UiThread
     public void bindUsers(LoggedInEvent loggedInEvent) {
         User user = loggedInEvent.user;
         mProfileUsernameTextView.setText(user.getUsername());
-        Picasso.get().load(user.getImage()).into(mProfileImage);
-    }
-
-    @Subscribe
-    public void bindOffers(OffersRetrievedEvent offersRetrievedEvent) {
-        mOffersGridView.setAdapter(new UserOffersAdapter(this, offersRetrievedEvent.offers));
+        //Picasso.get().load(user.getImage()).into(mProfileImage);
+        Glide.with(this).load(user.getImage()).into(mProfileImage);
     }
 }

@@ -1,10 +1,13 @@
 package com.app.sell.adapter;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.app.sell.view.ViewWrapper;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,4 +36,16 @@ public abstract class RecyclerViewAdapterBase<T, V extends View> extends Recycle
     }
 
     protected abstract V onCreateItemView(ViewGroup parent, int viewType);
+
+    @Override
+    public void registerAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
+        super.registerAdapterDataObserver(observer);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void unregisterAdapterDataObserver(@NonNull RecyclerView.AdapterDataObserver observer) {
+        super.unregisterAdapterDataObserver(observer);
+        EventBus.getDefault().unregister(this);
+    }
 }

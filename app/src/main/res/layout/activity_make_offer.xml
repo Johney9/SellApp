@@ -59,7 +59,8 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:inputType="numberDecimal"
-                        android:selectAllOnFocus="true"/>
+                        android:selectAllOnFocus="true"
+                        android:focusedByDefault="false"/>
 
                 </LinearLayout>
 
