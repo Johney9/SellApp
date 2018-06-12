@@ -132,7 +132,7 @@ public class AccountActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Glide.with(this).pauseRequests();
         super.onDestroy();
+        Glide.with(getApplicationContext()).pauseRequests();
     }
 }

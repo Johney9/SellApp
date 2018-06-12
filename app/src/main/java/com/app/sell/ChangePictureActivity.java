@@ -235,7 +235,7 @@ public class ChangePictureActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Glide.with(this).pauseRequests();
         super.onDestroy();
+        Glide.with(getApplicationContext()).pauseRequests();
     }
 }
