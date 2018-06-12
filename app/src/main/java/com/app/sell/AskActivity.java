@@ -173,7 +173,7 @@ public class AskActivity extends AppCompatActivity {
     private void populateMessages(List<com.app.sell.model.ChatMessage> chatMessages) {
         mChatView.clearMessages();
         for (com.app.sell.model.ChatMessage databaseChatMessage : chatMessages) {
-            ChatMessage viewModelChatMessage;
+
             long timestamp = databaseChatMessage.getTimestamp();
             String message = databaseChatMessage.getMessage();
             ChatMessage.Type messageType = ChatMessage.Type.RECEIVED;
