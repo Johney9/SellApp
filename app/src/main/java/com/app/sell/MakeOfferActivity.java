@@ -10,10 +10,13 @@ import android.widget.ImageView;
 import com.app.sell.dao.ChatMessageDao;
 import com.app.sell.dao.ChatroomDao;
 import com.app.sell.dao.LoginDao;
+import com.app.sell.dao.OfferDao;
 import com.app.sell.events.ChatMessageSentEvent;
 import com.app.sell.events.ChatroomCreatedEvent;
 import com.app.sell.events.ChatroomLoadedEvent;
+import com.app.sell.events.OfferLoadedEvent;
 import com.app.sell.model.ChatMessage;
+import com.app.sell.model.Offer;
 import com.bumptech.glide.Glide;
 
 import org.androidannotations.annotations.AfterViews;
@@ -30,12 +33,12 @@ public class MakeOfferActivity extends AppCompatActivity {
     String offerId;
     String offererId;
     String chatroomId;
-    Double offerPrice;
-    Boolean fixPrice;
     @Bean
     ChatroomDao chatroomDao;
     @Bean
     LoginDao loginDao;
+    @Bean
+    OfferDao offerDao;
     @Bean
     ChatMessageDao chatMessageDao;
     @ViewById(R.id.make_offer_price_text_view)
@@ -49,14 +52,24 @@ public class MakeOfferActivity extends AppCompatActivity {
     void init() {
         offerId = getIntent().getStringExtra(getString(R.string.field_offer_id));
         offererId = getIntent().getStringExtra(getString(R.string.field_offerer_id));
-        offerPrice = getIntent().getDoubleExtra(getString(R.string.field_offer_price), 0);
-        fixPrice = getIntent().getBooleanExtra(getString(R.string.field_offer_fix_price), false);
+        offerDao.loadOffer(offerId);
+    }
+
+    @Subscribe
+    public void onOfferLoaded(OfferLoadedEvent offerLoadedEvent) {
+        Offer offer = offerLoadedEvent.offer;
+
+        Double offerPrice = offer.getPrice();
+        boolean fixPrice = offer.getFirmOnPrice();
+        String offerImage = offer.getImage();
         priceEditText.setText(String.valueOf(offerPrice));
         if(fixPrice) {
             priceEditText.setEnabled(false);
         }
         String senderId = loginDao.getCurrentUser().getUid();
         chatroomDao.loadChatroom(senderId, offererId, offerId);
+        if(offerImage != null)
+            Glide.with(this).load(offerImage).into(offerImageView);
     }
 
     @Subscribe
