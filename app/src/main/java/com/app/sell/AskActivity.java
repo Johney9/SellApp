@@ -36,6 +36,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
@@ -132,7 +133,7 @@ public class AskActivity extends AppCompatActivity {
         if (mOffererId == null) {
             Chatroom chatroom = chatroomLoadedEvent.chatroom;
             for (String userId : chatroom.getUsers().keySet()) {
-                if (!FirebaseAuth.getInstance().getCurrentUser().getUid().contentEquals(userId)) {
+                if (!Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid().contentEquals(userId)) {
                     userDao.loadUser(userId);
                     break;
                 }
