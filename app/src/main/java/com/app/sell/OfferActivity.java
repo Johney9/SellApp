@@ -18,7 +18,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.klinker.android.badged_imageview.BadgedImageView;
-import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
@@ -80,22 +79,7 @@ public class OfferActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 offer = dataSnapshot.getValue(Offer.class);
 
-                //offer binding
-                offerTitle.setText(offer.getTitle());
-                offerDescription.setText(offer.getDescription());
-                String city = offer.getLocation().split(",")[2];
-                String country = offer.getLocation().split(",")[3];
-                offerLocation.setText(city + ", " + country);
-                Picasso.get().load(offer.getImage()).fit().into(offerImage);
-                String offerPrice = "$" + String.valueOf(offer.getPrice());
-                offerImage.setBadge(offerPrice);
-                offerCondition.setText("Condition: " + offer.getCondition());
-                offerFixedPrice.setText((offer.getFirmOnPrice() ? "Fixed price!" : "Dynamic price!"));
-
-                if (loginDao.getCurrentUser().getUid().equals(offer.getOffererId())) {
-                    ask.setVisibility(View.INVISIBLE);
-                    makeOffer.setVisibility(View.INVISIBLE);
-                }
+                offerBinding(offer);
 
                 //user binding
                 databaseUser = FirebaseDatabase.getInstance().getReference(getString(R.string.db_node_users)).child(offer.getOffererId());
@@ -104,7 +88,7 @@ public class OfferActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         user = dataSnapshot.getValue(User.class);
                         offerUserName.setText(user.getFirstName() + " " + user.getLastName());
-                        Glide.with(getApplicationContext()).load(user.getImage()).into(offerUserImage);
+                        Glide.with(OfferActivity.this).load(user.getImage()).into(offerUserImage);
                     }
 
                     @Override
@@ -133,6 +117,26 @@ public class OfferActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void offerBinding(Offer offer) {
+
+        String city = offer.getLocation().split(",")[2];
+        String country = offer.getLocation().split(",")[3];
+        String offerPrice = "$" + String.valueOf(offer.getPrice());
+
+        offerTitle.setText(offer.getTitle());
+        offerDescription.setText(offer.getDescription());
+        offerLocation.setText(city + ", " + country);
+        Glide.with(OfferActivity.this).load(offer.getImage()).into(offerImage);
+        offerImage.setBadge(offerPrice);
+        offerCondition.setText("Condition: " + offer.getCondition());
+        offerFixedPrice.setText((offer.getFirmOnPrice() ? "Fixed price!" : "Dynamic price!"));
+
+        if (loginDao.getCurrentUser().getUid().equals(offer.getOffererId())) {
+            ask.setVisibility(View.INVISIBLE);
+            makeOffer.setVisibility(View.INVISIBLE);
+        }
     }
 
     public void openAskActivity(View view) {

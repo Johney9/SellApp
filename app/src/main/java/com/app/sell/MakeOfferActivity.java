@@ -14,7 +14,7 @@ import com.app.sell.events.ChatMessageSentEvent;
 import com.app.sell.events.ChatroomCreatedEvent;
 import com.app.sell.events.ChatroomLoadedEvent;
 import com.app.sell.model.ChatMessage;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -86,7 +86,7 @@ public class MakeOfferActivity extends AppCompatActivity {
     public void chatroomLoaded(ChatroomLoadedEvent chatroomLoadedEvent) {
         chatroomId = chatroomLoadedEvent.chatroom.getId();
         String imageUri = chatroomLoadedEvent.chatroom.getOfferImageUri();
-        Picasso.get().load(imageUri).into(offerImageView);
+        Glide.with(this).load(imageUri).into(offerImageView);
     }
 
     @Subscribe
