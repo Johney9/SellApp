@@ -11,7 +11,7 @@ import com.app.sell.dao.LoginDao;
 import com.app.sell.model.Category;
 import com.app.sell.model.Offer;
 import com.app.sell.model.User;
-import com.bumptech.glide.Glide;
+import com.app.sell.util.GlideLoader;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -90,7 +90,7 @@ public class OfferActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         user = dataSnapshot.getValue(User.class);
                         offerUserName.setText(user.getFirstName() + " " + user.getLastName());
-                        Glide.with(OfferActivity.this).load(user.getImage()).into(offerUserImage);
+                        GlideLoader.loadIfValid(OfferActivity.this, user.getImage(), offerUserImage);
                     }
 
                     @Override
@@ -130,7 +130,7 @@ public class OfferActivity extends AppCompatActivity {
         offerTitle.setText(offer.getTitle());
         offerDescription.setText(offer.getDescription());
         offerLocation.setText(city + ", " + country);
-        Glide.with(OfferActivity.this).load(offer.getImage()).into(offerImage);
+        GlideLoader.loadIfValid(this, offer.getImage(), offerImage);
         offerImage.setBadge(offerPrice);
         offerCondition.setText("Condition: " + offer.getCondition());
         offerFixedPrice.setText((offer.getFirmOnPrice() ? "Fixed price!" : "Dynamic price!"));

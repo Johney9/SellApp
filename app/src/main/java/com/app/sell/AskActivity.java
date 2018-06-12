@@ -20,7 +20,7 @@ import com.app.sell.events.UserLoadedEvent;
 import com.app.sell.model.Chatroom;
 import com.app.sell.model.Offer;
 import com.app.sell.model.User;
-import com.bumptech.glide.Glide;
+import com.app.sell.util.GlideLoader;
 import com.google.firebase.auth.FirebaseAuth;
 import com.klinker.android.badged_imageview.BadgedImageView;
 
@@ -121,7 +121,7 @@ public class AskActivity extends AppCompatActivity {
     private void bindOfferer(User user) {
         mOffererId = user.getUid();
         usernameTextView.setText(user.getUsername());
-        Glide.with(this).load(user.getImage()).into(profileImageView);
+        GlideLoader.loadIfValid(this, user.getImage(), profileImageView);
     }
 
     @Subscribe
@@ -156,7 +156,7 @@ public class AskActivity extends AppCompatActivity {
     private void bindOffer(Offer offer) {
         mOfferId = offer.getId();
         offerImageView.setBadge(String.valueOf(offer.getPrice()));
-        Glide.with(this).load(offer.getImage()).into(offerImageView);
+        GlideLoader.loadIfValid(this, offer.getImage(), offerImageView);
     }
 
     @Subscribe
