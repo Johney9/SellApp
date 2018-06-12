@@ -17,9 +17,10 @@
             android:layout_height="wrap_content"
             android:minHeight="300dp"
             android:layout_margin="12dp"
-            android:scaleType="centerCrop"
+            android:scaleType="center"
             app:badgeGravity="start|bottom"
             app:badgePadding="22dp"
+            android:background="@color/black"
             app:badgeColor="@android:color/white"/>
 
         <TextView

@@ -20,9 +20,9 @@ import com.app.sell.events.UserLoadedEvent;
 import com.app.sell.model.Chatroom;
 import com.app.sell.model.Offer;
 import com.app.sell.model.User;
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.klinker.android.badged_imageview.BadgedImageView;
-import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -36,6 +36,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import co.intentservice.chatui.ChatView;
 import co.intentservice.chatui.models.ChatMessage;
@@ -120,7 +121,7 @@ public class AskActivity extends AppCompatActivity {
     private void bindOfferer(User user) {
         mOffererId = user.getUid();
         usernameTextView.setText(user.getUsername());
-        Picasso.get().load(user.getImage()).into(profileImageView);
+        Glide.with(this).load(user.getImage()).into(profileImageView);
     }
 
     @Subscribe
@@ -132,7 +133,7 @@ public class AskActivity extends AppCompatActivity {
         if (mOffererId == null) {
             Chatroom chatroom = chatroomLoadedEvent.chatroom;
             for (String userId : chatroom.getUsers().keySet()) {
-                if (!FirebaseAuth.getInstance().getCurrentUser().getUid().contentEquals(userId)) {
+                if (!Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid().contentEquals(userId)) {
                     userDao.loadUser(userId);
                     break;
                 }
@@ -155,7 +156,7 @@ public class AskActivity extends AppCompatActivity {
     private void bindOffer(Offer offer) {
         mOfferId = offer.getId();
         offerImageView.setBadge(String.valueOf(offer.getPrice()));
-        Picasso.get().load(offer.getImage()).into(offerImageView);
+        Glide.with(this).load(offer.getImage()).into(offerImageView);
     }
 
     @Subscribe
@@ -173,7 +174,7 @@ public class AskActivity extends AppCompatActivity {
     private void populateMessages(List<com.app.sell.model.ChatMessage> chatMessages) {
         mChatView.clearMessages();
         for (com.app.sell.model.ChatMessage databaseChatMessage : chatMessages) {
-            ChatMessage viewModelChatMessage;
+
             long timestamp = databaseChatMessage.getTimestamp();
             String message = databaseChatMessage.getMessage();
             ChatMessage.Type messageType = ChatMessage.Type.RECEIVED;

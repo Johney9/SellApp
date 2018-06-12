@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.app.sell.R;
 import com.app.sell.events.ChatMessageQueuedEvent;
+import com.app.sell.events.ChatMessageSentEvent;
 import com.app.sell.events.ChatMessagesUpdatedEvent;
 import com.app.sell.model.ChatMessage;
 import com.app.sell.model.Chatroom;
@@ -124,6 +125,7 @@ public class ChatMessageDao {
             DatabaseReference pushedReference = concreteChatMessageReference.push();
             chatMessage.setId(pushedReference.getKey());
             pushedReference.setValue(chatMessage);
+            EventBus.getDefault().post(new ChatMessageSentEvent());
             Log.d(TAG, "sendChatroomMessage: message sent: " + chatMessage);
         } catch (NullPointerException e) {
             chatroomDao.createChatroom(chatMessage.getSenderId(), offererId, offerId);

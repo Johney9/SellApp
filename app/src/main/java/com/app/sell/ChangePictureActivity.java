@@ -2,8 +2,10 @@ package com.app.sell;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Build;
@@ -21,19 +23,20 @@ import android.widget.Toast;
 import com.app.sell.dao.LoginDao;
 import com.app.sell.model.User;
 import com.app.sell.view.SquareImageView;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.OnActivityResult;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 import java.io.File;
@@ -66,8 +69,19 @@ public class ChangePictureActivity extends AppCompatActivity {
 
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
 
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, MY_CAMERA_REQUEST_CODE);
+            requestPermissions(new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, MY_CAMERA_REQUEST_CODE);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bind();
+    }
+
+    void bind() {
+        User currentUser = loginDao.getCurrentUser();
+        Glide.with(this).load(currentUser.getImage()).into(mProfileImageView);
     }
 
     @Override
@@ -80,18 +94,13 @@ public class ChangePictureActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
             }
+            if(grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "read permission granted", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(this, "read permission denied, image will be shown only when uploaded", Toast.LENGTH_SHORT).show();
+            }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        bind();
-    }
-
-    void bind() {
-        User currentUser = loginDao.getCurrentUser();
-        Picasso.get().load(currentUser.getImage()).into(mProfileImageView);
     }
 
     @Click(R.id.change_picture_from_gallery_button)
@@ -150,7 +159,6 @@ public class ChangePictureActivity extends AppCompatActivity {
         Log.d("handleTakePictureResponse:", String.valueOf(resultCode));
 
         if (resultCode == RESULT_OK) {
-            Picasso.get().load(mPhotoURI).into(mProfileImageView);
             uploadProfileImageToFirebase(mPhotoURI, mProfileImageView);
         }
     }
@@ -159,13 +167,14 @@ public class ChangePictureActivity extends AppCompatActivity {
     void handleGetPictureFromGalleryResponse(int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK) {
             Uri selectedImage = data.getData();
-            Picasso.get().load(selectedImage).into(mProfileImageView);
-
             uploadProfileImageToFirebase(selectedImage, mProfileImageView);
         }
     }
 
     private void uploadProfileImageToFirebase(Uri selectedImage, final ImageView profileImageView) {
+        //load image temporary
+        loadImageTemporary(selectedImage, profileImageView);
+
         //get reference
         final String newUserImageName = "/" + loginDao.getCurrentUser().getUid() + ".jpg";
         final StorageReference reference = FirebaseStorage.getInstance().getReference().child(getString(R.string.db_node_users) + newUserImageName);
@@ -201,10 +210,32 @@ public class ChangePictureActivity extends AppCompatActivity {
         }
     }
 
+    @UiThread
+    public void loadImageTemporary(Uri selectedImage, ImageView profileImageView) {
+        ContentResolver cr = getContentResolver();
+        Bitmap bitmap;
+        try {
+            bitmap = MediaStore.Images.Media
+                    .getBitmap(cr, selectedImage);
+
+            profileImageView.setImageBitmap(bitmap);
+            Toast.makeText(this, "Uploading image to our servers, please wait...",
+                    Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT)
+                    .show();
+            Log.e("Camera", e.toString());
+        }
+    }
+
     private void changeProfilePhoto(@NonNull Uri uri, ImageView imageView) {
-        User currentUser = loginDao.getCurrentUser();
-        currentUser.setImage(uri.toString());
+        loginDao.getCurrentUser().setImage(uri.toString());
         loginDao.writeCurrentUser();
-        Picasso.get().load(currentUser.getImage()).into(imageView);
+    }
+
+    @Override
+    protected void onDestroy() {
+        Glide.with(this).pauseRequests();
+        super.onDestroy();
     }
 }

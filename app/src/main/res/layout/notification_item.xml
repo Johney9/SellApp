@@ -10,7 +10,7 @@
             android:layout_width="?android:attr/listPreferredItemHeight"
             android:layout_height="?android:attr/listPreferredItemHeight"
             android:layout_marginEnd="6dip"
-            android:scaleType="centerInside"
+            android:scaleType="centerCrop"
             android:src="@drawable/mv" />
 
         <TextView

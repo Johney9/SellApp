@@ -85,4 +85,8 @@
     <string name="offer_message_sent">Offer sent!</string>
     <string name="make_offer">Make offer</string>
     <string name="enter_you_offer">Enter you offer</string>
+    <string name="offer_message_sending">Sending offer...</string>
+    <string name="offer">Offer</string>
+    <string name="edit_info">Edit Info</string>
+    <string name="field_offer_image">offer_image</string>
 </resources>

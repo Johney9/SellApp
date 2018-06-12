@@ -12,11 +12,11 @@ import android.widget.TextView;
 import com.app.sell.dao.LoginDao;
 import com.app.sell.events.LoggedInEvent;
 import com.app.sell.model.User;
+import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.makeramen.roundedimageview.RoundedImageView;
-import com.squareup.picasso.Picasso;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -35,8 +35,10 @@ public class AccountActivity extends AppCompatActivity {
 
     private static final String TAG = "AccountActivity";
 
-    @ViewsById({R.id.account_profile_username, R.id.account_content_username, R.id.account_content_email, R.id.account_content_location})
+    @ViewsById({R.id.account_content_username, R.id.account_content_email, R.id.account_content_location})
     List<TextView> textViews;
+    @ViewById(R.id.account_profile_username)
+    TextView accountProfileUsernameTextview;
 
     @ViewById(R.id.account_profile_image)
     RoundedImageView profileImage;
@@ -65,17 +67,20 @@ public class AccountActivity extends AppCompatActivity {
             String id = textView.getResources().getResourceName(textView.getId());
 
             if (id.contains("username")) {
-                String username = currentUser.getUsername();
+                String username = currentUser.getFirstName() + " " + currentUser.getLastName();
                 textView.setText(username);
             }
             if (id.contains("email")) {
                 textView.setText(currentUser.getEmail());
             }
             if (id.contains("location")) {
-                textView.setText(currentUser.getLocation());
+                String location = currentUser.getPrettyLocation();
+                textView.setText(location);
             }
         }
-        Picasso.get().load(currentUser.getImage()).into(profileImage);
+
+        accountProfileUsernameTextview.setText(currentUser.getUsername());
+        Glide.with(this).load(currentUser.getImage()).into(profileImage);
     }
 
     @Click(R.id.sign_out)
@@ -123,5 +128,11 @@ public class AccountActivity extends AppCompatActivity {
     protected void onStop() {
         EventBus.getDefault().unregister(this);
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Glide.with(this).pauseRequests();
+        super.onDestroy();
     }
 }
