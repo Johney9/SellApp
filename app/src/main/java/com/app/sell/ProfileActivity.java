@@ -3,7 +3,6 @@ package com.app.sell;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.widget.TextView;
 
 import com.app.sell.adapter.UserOfferAdapter;
@@ -63,7 +62,6 @@ public class ProfileActivity extends AppCompatActivity {
     public void bindUsers(LoggedInEvent loggedInEvent) {
         User user = loggedInEvent.user;
         mProfileUsernameTextView.setText(user.getUsername());
-        //Picasso.get().load(user.getImage()).into(mProfileImage);
         Glide.with(this).load(user.getImage()).into(mProfileImage);
     }
 }
