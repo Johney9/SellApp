@@ -314,7 +314,7 @@ public class MyOffersFragment extends Fragment {
                                 if(!offer.getIsDeleted()) {
                                     boolean isBuyingOffer = false;
                                     for (String buyingOfferId : buyingOffersIds) {
-                                        if (buyingOfferId.equals(offer.getId())) {
+                                        if (buyingOfferId!=null && buyingOfferId.equals(offer.getId())) {
                                             isBuyingOffer = true;
                                             break;
                                         }
